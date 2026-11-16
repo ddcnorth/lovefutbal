@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>love.fútbol Front Page</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bahianita&family=Red+Hat+Text:ital,wght@0,400;0,500;0,700;1,400&display=swap">
+<style>
+/* Layout: the pitch is the page. A hand-drawn live pitch opens it; every section below is a marked area of the same ground. Left-aligned throughout. */
+:root{
+  --paper:#F5F4EF; --ink:#1D1D1B; --green:#489D60; --mint:#88C59B; --clay:#D17F2D; --sky:#3CB1EA; --flag:#ED1C24;
+  --forest:#1F5A33; --chalk:#FFFFFF; --rule:rgba(29,29,27,.18); --soft:rgba(29,29,27,.66);
+  --display:"Bahianita","Arial Narrow","Helvetica Neue Condensed",Impact,sans-serif;
+  --text:"Red Hat Text","Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:400 18px/1.5 var(--text);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--sky);outline-offset:3px;border-radius:2px}
+.wrap{max-width:1200px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance;letter-spacing:.005em}
+h2{font-size:clamp(56px,8vw,104px);line-height:.88}
+p{margin:0;max-width:62ch}
+.num{font-variant-numeric:tabular-nums}
+
+.proto{background:var(--ink);color:var(--paper);font-size:14px}
+.proto .wrap{padding-block:6px}
+
+.nav .wrap{display:flex;align-items:center;gap:32px;padding-block:20px}
+.logo{display:block;width:144px;color:var(--ink);flex:none}
+.logo svg{display:block;width:100%;height:auto}
+.nav nav{display:flex;gap:28px;margin-left:auto}
+.nav nav a{text-decoration:none;font-weight:500;padding-block:4px;border-bottom:2px solid transparent}
+.nav nav a:hover{border-color:var(--ink)}
+.btn{display:inline-block;font:700 17px/1 var(--text);padding:15px 22px;border:2px solid var(--ink);border-radius:999px;background:var(--ink);color:var(--paper);text-decoration:none;cursor:pointer;transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:none}
+.btn.line{background:transparent;color:var(--ink)}
+.btn[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+
+/* hero */
+.hero .wrap{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,7fr);gap:clamp(24px,4vw,64px);align-items:center;padding-block:clamp(16px,3vw,40px) clamp(40px,6vw,88px)}
+.hero h1{font-size:clamp(72px,10vw,136px);line-height:.8;display:grid;gap:.06em;white-space:nowrap}
+.hero h1 a{text-decoration:none;display:block;width:fit-content;background:linear-gradient(var(--mint),var(--mint)) no-repeat 0 78%/0 .3em;transition:background-size .35s ease-out}
+.hero h1 a:hover,.hero h1 a:focus-visible{background-size:100% .3em}
+.hero .lead{margin-top:28px;font-size:20px}
+.hero .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.stage{min-width:0}
+.pitch{display:block;width:100%;height:auto;overflow:visible}
+.turf{fill:var(--green)}
+.lines *{fill:none;stroke:var(--paper);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;animation:draw 1.1s ease-out both}
+.lines :nth-child(2){animation-delay:.5s}.lines :nth-child(3){animation-delay:.8s}
+.lines :nth-child(n+4){animation-delay:1s}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.pole{stroke:var(--ink);stroke-width:1.4;stroke-linecap:round}
+.flagc{fill:var(--flag);transform-origin:200px -6px;animation:flap 2.4s ease-in-out infinite}
+@keyframes flap{50%{transform:skewY(-9deg) scaleX(.9)}}
+.pl{transition:transform 1s ease-in-out,opacity .5s;stroke:var(--ink);stroke-width:1}
+.pl.a{fill:var(--ink)}.pl.b{fill:var(--clay)}
+.ball{fill:var(--chalk);stroke:var(--ink);stroke-width:1.1;transition:transform .55s cubic-bezier(.2,.7,.3,1)}
+.cap{display:flex;flex-wrap:wrap;gap:6px 20px;align-items:baseline;margin-top:14px;font-size:16px}
+.cap strong{font-weight:700}
+.livedot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--flag);margin-right:8px;animation:pulse 1.6s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(237,28,36,.55)}100%{box-shadow:0 0 0 10px rgba(237,28,36,0)}}
+
+/* live band */
+.live{background:var(--green)}
+.live .wrap{padding-block:clamp(48px,7vw,96px)}
+.live .intro{margin-top:12px}
+.figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:40px;border-top:2px solid var(--ink)}
+.fig{padding-top:8px;overflow:hidden}
+.fig b{display:block;font:400 clamp(96px,14vw,200px)/.82 var(--display);font-variant-numeric:tabular-nums}
+.fig span{display:block;font-weight:500;max-width:20ch;margin-top:6px}
+.totals{display:flex;flex-wrap:wrap;gap:8px 36px;margin-top:32px;padding-top:16px;border-top:1px solid var(--rule)}
+.totals b{font-weight:700;font-variant-numeric:tabular-nums}
+.games{list-style:none;margin:40px 0 0;padding:0;border-top:2px solid var(--ink)}
+.games li{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.5fr) auto 4.5em;gap:8px 24px;align-items:center;padding-block:14px;border-bottom:1px solid var(--rule)}
+.games .where b{display:block;font-weight:700}
+.games .where span,.games .min{font-size:16px}
+.games .sc{font-weight:700;padding-inline:.4em;font-variant-numeric:tabular-nums}
+.games .min{text-align:right;font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:4px;align-items:center}
+.dots i{flex:none;width:10px;height:10px;border-radius:50%;border:1.5px solid var(--ink);transition:background .4s,transform .4s}
+.dots i.on{background:var(--ink)}
+.dots i.pop{transform:scale(1.6)}
+.dots em{font-style:normal;font-weight:700;margin-left:8px;font-variant-numeric:tabular-nums}
+.note{font-size:16px;margin-top:16px}
+
+/* booking */
+.book .wrap{padding-block:clamp(56px,8vw,112px)}
+.book .head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px 64px;align-items:end}
+.pick{display:flex;flex-wrap:wrap;gap:16px;margin-top:40px}
+.pick label{display:grid;gap:6px;font-weight:700;font-size:16px}
+.pick select{font:500 18px/1.2 var(--text);color:var(--ink);background:var(--chalk);border:2px solid var(--ink);border-radius:8px;padding:12px 14px;min-width:210px;max-width:100%}
+.days{display:flex;gap:8px;margin-top:24px;overflow-x:auto;padding-bottom:4px}
+.days button{flex:none;font:500 16px/1.2 var(--text);color:var(--ink);background:none;border:2px solid var(--rule);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left}
+.days button b{display:block;font:400 34px/.9 var(--display)}
+.days button[aria-pressed=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.gridscroll{overflow-x:auto;margin-top:24px}
+.slots{display:grid;grid-template-columns:88px repeat(7,minmax(74px,1fr));gap:6px;min-width:640px}
+.slots .h{font-weight:700;font-size:16px;padding:4px 2px;font-variant-numeric:tabular-nums}
+.slots .p{font:400 30px/1 var(--display);align-self:center}
+.slot{height:60px;border-radius:6px;border:2px solid var(--green);background:transparent;color:var(--forest);font:700 15px/1.15 var(--text);cursor:pointer;padding:4px;transition:background .15s,transform .15s}
+.slot:hover{background:var(--mint);transform:translateY(-2px)}
+.slot.taken{border-color:transparent;background:repeating-linear-gradient(135deg,rgba(29,29,27,.1) 0 6px,transparent 6px 12px);color:var(--soft);cursor:not-allowed;font-weight:400;transform:none}
+.slot.fix{border-color:transparent;background:var(--clay);color:var(--ink);cursor:not-allowed;transform:none}
+.slot.sel{background:var(--green);border-color:var(--ink);color:var(--ink);animation:stamp .3s ease-out}
+@keyframes stamp{0%{transform:scale(.9)}60%{transform:scale(1.06)}}
+.legend{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:16px;font-size:16px}
+.legend span::before{content:"";display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:8px;vertical-align:-2px}
+.legend .f::before{border:2px solid var(--green)}
+.legend .t::before{background:repeating-linear-gradient(135deg,rgba(29,29,27,.25) 0 3px,transparent 3px 6px)}
+.legend .l::before{background:var(--clay)}
+.summary{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;justify-content:space-between;margin-top:32px;padding:20px 24px;background:var(--chalk);border:2px solid var(--ink);border-radius:10px}
+.summary p{font-weight:500}
+.summary p b{display:block;font:400 40px/1 var(--display)}
+
+/* leagues */
+.league{background:var(--mint)}
+.league .wrap{padding-block:clamp(56px,8vw,112px)}
+.steps{list-style:none;counter-reset:s;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:40px 0 0;padding:0}
+.steps li{counter-increment:s;border-top:2px solid var(--ink);padding-top:12px}
+.steps li::before{content:counter(s);display:block;font:400 56px/.9 var(--display)}
+.steps b{display:block;font-weight:700}
+.board{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:32px 56px;margin-top:56px;align-items:start}
+.board h3{font-size:44px;line-height:1}
+.tablewrap{overflow-x:auto;margin-top:16px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:10px 8px;white-space:nowrap}
+th{font-size:15px;font-weight:700;border-bottom:2px solid var(--ink)}
+th:nth-child(2),td:nth-child(2){text-align:left;width:99%}
+td{border-bottom:1px solid var(--rule)}
+tbody tr{background:var(--mint)}
+tbody tr.cut td{border-bottom:2px dashed var(--ink)}
+td:last-child{font-weight:700}
+.q{font-size:15px;margin-top:8px}
+.next{margin-top:24px;display:flex;flex-wrap:wrap;gap:16px 24px;align-items:center}
+.next p{font-weight:500;min-width:0}
+.next p span{display:block;font-weight:400;font-size:16px}
+.results{list-style:none;margin:16px 0 0;padding:0;font-size:16px}
+.results li{padding-block:4px}
+.ko{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr);align-items:center;margin-top:16px}
+.ko .semis{display:grid;gap:20px}
+.tie{background:var(--paper);border:2px solid var(--ink);border-radius:8px;font-size:16px}
+.tie div{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;min-height:42px}
+.tie div+div{border-top:1px solid var(--rule)}
+.tie .w{font-weight:700}
+.tie .tbd{color:var(--soft)}
+.tie small{display:block;padding:4px 10px;font-size:13px;border-top:1px solid var(--rule)}
+.join{height:calc(50% + 2px);border:2px solid var(--ink);border-left:0;border-radius:0 8px 8px 0}
+.champ{margin-top:16px;font-weight:700;min-height:1.5em}
+.champ svg{width:16px;height:18px;vertical-align:-2px;margin-right:6px}
+
+footer{background:var(--ink);color:var(--paper)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:24px 48px;align-items:center;justify-content:space-between;padding-block:40px}
+footer .logo{color:var(--paper)}
+footer nav{display:flex;flex-wrap:wrap;gap:8px 28px}
+footer p{font-size:15px;opacity:.8;flex-basis:100%}
+
+@media (max-width:860px){
+  .hero .wrap,.book .head,.board{grid-template-columns:minmax(0,1fr)}
+  .nav nav{display:none}.nav .btn{margin-left:auto}
+  .steps{grid-template-columns:minmax(0,1fr)}
+  .games li{grid-template-columns:minmax(0,1fr) auto}
+  .games .min{grid-row:1;grid-column:2}
+  .games .teams,.games .dots{grid-column:1/-1}
+}
+@media (max-width:520px){
+  .figs{grid-template-columns:minmax(0,1fr);gap:8px}
+  .fig{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule)}
+  .fig b{font-size:88px;min-width:1.5em}
+  .nav .btn{padding:12px 16px;font-size:15px}
+  .logo{width:120px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
+</style>
+
+<div class="proto"><div class="wrap">Design prototype. Sites, teams, fixtures and figures are sample data, and nothing here makes a real booking.</div></div>
+
+<header class="nav"><div class="wrap">
+  <a class="logo" href="#top" aria-label="love.fútbol home"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350.11102295 199.03307343"><g transform="translate(0 0)"><g transform="translate(0 0) scale(1)"><g transform="translate(-363.5989990234375 -36.72595977783203)"><path transform="matrix(1,0,0,-1,497.295,141.03003)" d="M0 0C-6.013 2.804-1.513 11.355 2.483 13.038 7.296 10.25 3.869 1.466 0 0M198.049-57.117C190.207-55.664 196.289-81.035 193.703-86.917 183.483-88.962 173.23-86.433 162.661-85.675 108.832-81.821 50.36-87.901 7.45-85.056 4.764-60.086 6.252-29.692 3.724-6.207 9.34-3.793 13.967 2.617 11.796 11.176 10.905 14.686 5.352 16.172 3.724 19.868 2.126 23.498 3.276 30.719 3.104 36.631 2.611 53.505 3.314 70.174 4.967 86.298 71.723 87.261 128.362 84.572 191.841 83.815 192.009 76.055 188.841 59.653 193.083 52.773 195.385 52.333 195.747 53.832 198.049 53.394 200.078 62.673 198.546 81.556 199.911 91.265 199.98 91.305 200.055 91.341 200.126 91.38 199.977 91.408 199.825 91.444 199.669 91.491 198.103 91.965 196.692 92.392 195.354 93.021 195.228 92.839 195.092 92.667 194.945 92.507 142.585 91.833 90.701 93.545 35.389 93.748-16.809 93.938-78.082 91.991-129.136 94.99-130.728 88.927-129.554 80.613-129.757 73.26-129.941 66.641-133.696 56.721-126.032 55.256-121.969 58.206-123.57 64.874-123.549 70.156-123.524 76.279-123.127 82.091-122.928 87.539-86.353 87.534-39.139 87.261-3.105 86.298-5.082 64.941-3.393 36.038-3.726 18.005-11.765 14.115-10.655-3.391-3.105-6.829-2.527-32.792-.871-62.914-1.242-86.298-41.133-86.771-83.811-88.229-122.307-85.056-122.767-79.567-124.01-70.45-124.17-63.326-124.297-57.622-122.309-50.386-129.757-52.151-131.549-64.784-128.367-81.402-129.757-93.748-113.302-93.43-95.925-93.569-81.331-93.748-.521-94.729 71.365-89.2 149.003-91.886 166.38-92.485 183.467-94.05 199.911-93.748 202.345-90.026 201.102-82.28 201.152-75.121 201.196-69.27 203.418-58.111 198.049-57.117" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,558.138,115.579959)" d="M0 0C-2.223-1.913-3.728-1.77-7.451-1.243-12.042 3.234-11.079 15.531-17.384 16.762-29.063 19.042-24.734-11.003-26.697-19.247-24.865-21.037-22.219-18.376-19.247-19.247-19.91-21.567-17.704-21.016-18.005-22.971-18.764-26.353-24.329-24.926-26.697-26.696-26.716-42.618-27.104-57.71-26.076-74.501-29.406-76.655-35.951-75.52-38.493-73.26-36.984-57.294-37.897-45.753-37.251-29.8-41.622-30.603-44.439-32.959-49.668-32.906-51.387-29.765-49.062-27.448-48.427-24.833-43.893-25.023-41.318-23.252-37.251-22.971-35.317-9.18-39.943 32.751-14.28 23.592-6.242 20.723-1.23 9.031 0 0" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,378.713,92.609989)" d="M0 0C.955-32.824-6.16-63.638 .621-93.128-3.346-94.231-8.779-92.452-12.417-91.263-12.411-62.585-12.654-29.74-10.554-1.242-8.908 1.604-3.465 .458 0 0" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,696.587,96.94995)" d="M0 0C.39-30.03-4.36-63.228 .619-92.507-2.741-94.714-7.044-96.686-11.798-94.369-12.59-60.174-11.39-31.104-11.176 1.863-7.377 2.948-3.05 1.475 0 0" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,620.222,149.09998)" d="M0 0C.118-11.696 .962-20.522 .622-33.527 6.307-33.834 9.48-31.625 13.659-30.423 18.021-21.371 16.165-5.111 12.417 3.103 7.845 4.632 2.685 2.329 0 0M0 50.908V9.932C18.141 13.059 23.701 3.117 26.076-13.659 26.851-19.141 28.703-25.655 27.939-29.179 25.251-41.562 4.217-42.517-8.691-40.976-10.93-12.662-10.641 23.201-11.176 52.771H-9.933C-6.551 54.15-2.742 52.079 0 50.908" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,592.905,108.75)" d="M0 0C1.431-9.123 2.617-18.491 2.483-29.18 5.82-29.687 7.787-28.14 9.933-29.18 13.889-34.646 8.289-38.911 2.483-38.491 3.537-53.373 6.096-66.748 7.449-81.33 3.762-83.888-1.597-83.112-6.209-82.573-7.178-69.055-7.402-54.792-7.45-40.354-9.258-39.571-12.86-40.937-14.28-38.491-15.373-36.401-13.863-35.308-14.28-32.285-12.899-31.389-11.286-30.724-8.692-31.043-8.716-19.398-9.806-10.123-9.313 0-7.04 1.11-4.651-.543 0 0" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,459.423,154.06995)" d="M0 0C4.77 2.265 10.138 3.933 15.521 5.586 16.319 24.396-2.767 14.105 0 0M22.971-1.243C15.073-4.106 7.536-7.329-1.242-9.313-.137-18.649 2.214-28.912 9.933-28.56 16.973-28.238 13.765-19.057 21.729-18.626 30.354-32.068 10.293-42.244-1.242-34.148-15.774-23.947-13.6 27.342 6.829 27.937 18.845 28.286 23.965 13.929 22.971-1.243" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,399.822,136.06995)" d="M0 0C-4.143-10.421-14.806-43.339 4.346-42.838 6.493-28.969 6.967-11.347 1.863 0ZM-3.105 8.692C10.898 13.182 15.996-8.037 16.142-21.729 16.265-33.273 15.709-48.531 7.45-51.53-8.534-57.334-18.298-41.44-17.384-25.454-16.669-12.974-10.686 6.26-3.105 8.692" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,422.793,127.98999)" d="M0 0C1.734-13.167 5.988-23.813 8.071-36.63 11.712-24.75 14.513-12.029 18.626-.621 23.285-1.022 26.196 .68 29.18-1.242 23.028-20.751 19.357-42.741 11.175-60.223 8.175-60.118 6.336-58.854 3.725-58.36-.17-39.266-5.84-18.693-8.071 0-5.769 1.695-2.876-.311 0 0" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,573.037,132.33997)" d="M0 0C-8.705-2.286-19.12-6.095-27.937-6.207-29.475-4.598-27.334-3.164-27.937-.621-19.844 1.841-11.095 3.646-1.863 4.967-1.452 3.1 .524 2.8 0 0" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,668.027,182.01001)" d="M0 0C6.277 7.971 5.473 29.04-3.104 34.145-8.109 26.031-12.282 3.358 0 0M4.347-7.452C-27.856-15.809-23.198 47.052-.622 46.562 7.841 46.378 11.629 33.327 12.417 24.213 13.56 10.98 10.226-1.866 4.347-7.452" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,550.067,141.03003)" d="M0 0C4.852-1.238 2.896-8.116 3.104-13.036 3.493-22.268 3.866-35.286 6.208-39.734 9.429-45.852 16.179-45.209 17.384-37.249 18.081-32.631 17.057-24.766 16.762-17.382 16.484-10.432 15.368-2.31 19.246 .622 26.426 .97 25.454-8.592 25.454-16.142 25.454-30.222 28.16-49.577 16.14-52.151 11.585-53.126 3.183-50.521 0-47.184-9.007-37.747-4.448-14.823-5.589-.62-3.5-1.012-1.061 1.419 0 0" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,713.65,42.20996)" d="M0 0C.016 .265 .038 .529 .06 .794-1.662 2.082-5.516 2.464-7.752 3.001-11.516 3.905-15.703 4.589-18.307 5.484-19.541 1.909-19.075-3.364-21.2-6.047-19.123-6.277-18.609-7.333-16.551-7.665-12.266-6.097-4.455-5.912-.839-3.189-.644-2.099-.386-1.028 0 0" fill="#ED1C24" fill-rule="evenodd"/></g></g></g></svg></a>
+  <nav aria-label="Main">
+    <a href="#book">Book a pitch</a><a href="#leagues">Leagues</a><a href="#live">Live</a>
+  </nav>
+  <a class="btn" href="#book">Book a pitch</a>
+</div></header>
+
+<main id="top">
+<section class="hero"><div class="wrap">
+  <div>
+    <h1><a href="#book">Book a pitch.</a><a href="#leagues">Join a league.</a><a href="#live">See who's playing.</a></h1>
+    <p class="lead">Community pitches in several countries, open to reserve by the hour. Leagues play on the same ground, and every game shows up here while it is being played.</p>
+    <div class="cta"><a class="btn" href="#book">Book a pitch</a><a class="btn line" href="#leagues">Register a team</a></div>
+  </div>
+  <div class="stage">
+    <div id="heroPitch"></div>
+    <div class="cap" aria-live="polite"><span><span class="livedot"></span><strong id="hSite"></strong></span><span id="hScore"></span><span><strong class="num" id="hCount"></strong> players on the pitch</span></div>
+  </div>
+</div></section>
+
+<section class="live" id="live"><div class="wrap">
+  <h2>Playing right now</h2>
+  <p class="intro">Each game reports its own headcount as people join and leave. The totals add up every game on every pitch.</p>
+  <div class="figs">
+    <div class="fig"><b id="fGame">0</b><span>players in the game above</span></div>
+    <div class="fig"><b id="fTeams">0</b><span>teams playing around the world</span></div>
+    <div class="fig"><b id="fPlayers">0</b><span>players playing around the world</span></div>
+  </div>
+  <div class="totals">
+    <span><b id="tGames">0</b> games on</span><span><b id="tPitches">0</b> pitches in use</span><span><b id="tCountries">0</b> countries with a game on</span><span><b id="tToday">0</b> players so far today</span>
+  </div>
+  <ul class="games" id="games"></ul>
+  <p class="note" id="gamesNote"></p>
+</div></section>
+
+<section class="book" id="book"><div class="wrap">
+  <div class="head">
+    <h2>Book a pitch</h2>
+    <p>Pick a site and a day, then tap a free hour. League fixtures sit on the same timetable, so you always see what the pitch is really doing.</p>
+  </div>
+  <div class="pick">
+    <label for="country">Country<select id="country"></select></label>
+    <label for="site">Site<select id="site"></select></label>
+  </div>
+  <div class="days" id="days" role="group" aria-label="Day"></div>
+  <div class="gridscroll"><div class="slots" id="slots"></div></div>
+  <div class="legend"><span class="f">Free</span><span class="t">Booked</span><span class="l">League fixture</span></div>
+  <div class="summary">
+    <p aria-live="polite" id="sum"><b>No hour picked yet</b>Tap a free hour in the timetable.</p>
+    <button class="btn" id="reserve" disabled>Reserve this hour</button>
+  </div>
+</div></section>
+
+<section class="league" id="leagues"><div class="wrap">
+  <h2>Join a league</h2>
+  <ol class="steps">
+    <li><b>Register your team</b>Add your players and pick a league at your site.</li>
+    <li><b>Get your fixtures</b>The season is drawn up and each match is placed on a pitch and an hour.</li>
+    <li><b>Play for the table</b>Results update the standings. The top four go into the knockout.</li>
+  </ol>
+  <div class="board">
+    <div>
+      <h3>Liga Comunitária da Várzea</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table></div>
+      <p class="q">Teams above the dashed line qualify for the knockout.</p>
+      <div class="next">
+        <button class="btn" id="play">Record the next result</button>
+        <p id="nextFix" aria-live="polite"></p>
+      </div>
+      <ul class="results" id="results"></ul>
+    </div>
+    <div>
+      <h3>Knockout</h3>
+      <div class="ko">
+        <div class="semis"><div class="tie" id="sf1"></div><div class="tie" id="sf2"></div></div>
+        <div class="join"></div>
+        <div class="tie" id="fin"></div>
+      </div>
+      <p class="champ" id="champ"></p>
+    </div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <a class="logo" href="#top" aria-label="love.fútbol home"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350.11102295 199.03307343"><g transform="translate(0 0)"><g transform="translate(0 0) scale(1)"><g transform="translate(-363.5989990234375 -36.72595977783203)"><path transform="matrix(1,0,0,-1,497.295,141.03003)" d="M0 0C-6.013 2.804-1.513 11.355 2.483 13.038 7.296 10.25 3.869 1.466 0 0M198.049-57.117C190.207-55.664 196.289-81.035 193.703-86.917 183.483-88.962 173.23-86.433 162.661-85.675 108.832-81.821 50.36-87.901 7.45-85.056 4.764-60.086 6.252-29.692 3.724-6.207 9.34-3.793 13.967 2.617 11.796 11.176 10.905 14.686 5.352 16.172 3.724 19.868 2.126 23.498 3.276 30.719 3.104 36.631 2.611 53.505 3.314 70.174 4.967 86.298 71.723 87.261 128.362 84.572 191.841 83.815 192.009 76.055 188.841 59.653 193.083 52.773 195.385 52.333 195.747 53.832 198.049 53.394 200.078 62.673 198.546 81.556 199.911 91.265 199.98 91.305 200.055 91.341 200.126 91.38 199.977 91.408 199.825 91.444 199.669 91.491 198.103 91.965 196.692 92.392 195.354 93.021 195.228 92.839 195.092 92.667 194.945 92.507 142.585 91.833 90.701 93.545 35.389 93.748-16.809 93.938-78.082 91.991-129.136 94.99-130.728 88.927-129.554 80.613-129.757 73.26-129.941 66.641-133.696 56.721-126.032 55.256-121.969 58.206-123.57 64.874-123.549 70.156-123.524 76.279-123.127 82.091-122.928 87.539-86.353 87.534-39.139 87.261-3.105 86.298-5.082 64.941-3.393 36.038-3.726 18.005-11.765 14.115-10.655-3.391-3.105-6.829-2.527-32.792-.871-62.914-1.242-86.298-41.133-86.771-83.811-88.229-122.307-85.056-122.767-79.567-124.01-70.45-124.17-63.326-124.297-57.622-122.309-50.386-129.757-52.151-131.549-64.784-128.367-81.402-129.757-93.748-113.302-93.43-95.925-93.569-81.331-93.748-.521-94.729 71.365-89.2 149.003-91.886 166.38-92.485 183.467-94.05 199.911-93.748 202.345-90.026 201.102-82.28 201.152-75.121 201.196-69.27 203.418-58.111 198.049-57.117" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,558.138,115.579959)" d="M0 0C-2.223-1.913-3.728-1.77-7.451-1.243-12.042 3.234-11.079 15.531-17.384 16.762-29.063 19.042-24.734-11.003-26.697-19.247-24.865-21.037-22.219-18.376-19.247-19.247-19.91-21.567-17.704-21.016-18.005-22.971-18.764-26.353-24.329-24.926-26.697-26.696-26.716-42.618-27.104-57.71-26.076-74.501-29.406-76.655-35.951-75.52-38.493-73.26-36.984-57.294-37.897-45.753-37.251-29.8-41.622-30.603-44.439-32.959-49.668-32.906-51.387-29.765-49.062-27.448-48.427-24.833-43.893-25.023-41.318-23.252-37.251-22.971-35.317-9.18-39.943 32.751-14.28 23.592-6.242 20.723-1.23 9.031 0 0" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,378.713,92.609989)" d="M0 0C.955-32.824-6.16-63.638 .621-93.128-3.346-94.231-8.779-92.452-12.417-91.263-12.411-62.585-12.654-29.74-10.554-1.242-8.908 1.604-3.465 .458 0 0" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,696.587,96.94995)" d="M0 0C.39-30.03-4.36-63.228 .619-92.507-2.741-94.714-7.044-96.686-11.798-94.369-12.59-60.174-11.39-31.104-11.176 1.863-7.377 2.948-3.05 1.475 0 0" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,620.222,149.09998)" d="M0 0C.118-11.696 .962-20.522 .622-33.527 6.307-33.834 9.48-31.625 13.659-30.423 18.021-21.371 16.165-5.111 12.417 3.103 7.845 4.632 2.685 2.329 0 0M0 50.908V9.932C18.141 13.059 23.701 3.117 26.076-13.659 26.851-19.141 28.703-25.655 27.939-29.179 25.251-41.562 4.217-42.517-8.691-40.976-10.93-12.662-10.641 23.201-11.176 52.771H-9.933C-6.551 54.15-2.742 52.079 0 50.908" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,592.905,108.75)" d="M0 0C1.431-9.123 2.617-18.491 2.483-29.18 5.82-29.687 7.787-28.14 9.933-29.18 13.889-34.646 8.289-38.911 2.483-38.491 3.537-53.373 6.096-66.748 7.449-81.33 3.762-83.888-1.597-83.112-6.209-82.573-7.178-69.055-7.402-54.792-7.45-40.354-9.258-39.571-12.86-40.937-14.28-38.491-15.373-36.401-13.863-35.308-14.28-32.285-12.899-31.389-11.286-30.724-8.692-31.043-8.716-19.398-9.806-10.123-9.313 0-7.04 1.11-4.651-.543 0 0" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,459.423,154.06995)" d="M0 0C4.77 2.265 10.138 3.933 15.521 5.586 16.319 24.396-2.767 14.105 0 0M22.971-1.243C15.073-4.106 7.536-7.329-1.242-9.313-.137-18.649 2.214-28.912 9.933-28.56 16.973-28.238 13.765-19.057 21.729-18.626 30.354-32.068 10.293-42.244-1.242-34.148-15.774-23.947-13.6 27.342 6.829 27.937 18.845 28.286 23.965 13.929 22.971-1.243" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,399.822,136.06995)" d="M0 0C-4.143-10.421-14.806-43.339 4.346-42.838 6.493-28.969 6.967-11.347 1.863 0ZM-3.105 8.692C10.898 13.182 15.996-8.037 16.142-21.729 16.265-33.273 15.709-48.531 7.45-51.53-8.534-57.334-18.298-41.44-17.384-25.454-16.669-12.974-10.686 6.26-3.105 8.692" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,422.793,127.98999)" d="M0 0C1.734-13.167 5.988-23.813 8.071-36.63 11.712-24.75 14.513-12.029 18.626-.621 23.285-1.022 26.196 .68 29.18-1.242 23.028-20.751 19.357-42.741 11.175-60.223 8.175-60.118 6.336-58.854 3.725-58.36-.17-39.266-5.84-18.693-8.071 0-5.769 1.695-2.876-.311 0 0" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,573.037,132.33997)" d="M0 0C-8.705-2.286-19.12-6.095-27.937-6.207-29.475-4.598-27.334-3.164-27.937-.621-19.844 1.841-11.095 3.646-1.863 4.967-1.452 3.1 .524 2.8 0 0" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,668.027,182.01001)" d="M0 0C6.277 7.971 5.473 29.04-3.104 34.145-8.109 26.031-12.282 3.358 0 0M4.347-7.452C-27.856-15.809-23.198 47.052-.622 46.562 7.841 46.378 11.629 33.327 12.417 24.213 13.56 10.98 10.226-1.866 4.347-7.452" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,550.067,141.03003)" d="M0 0C4.852-1.238 2.896-8.116 3.104-13.036 3.493-22.268 3.866-35.286 6.208-39.734 9.429-45.852 16.179-45.209 17.384-37.249 18.081-32.631 17.057-24.766 16.762-17.382 16.484-10.432 15.368-2.31 19.246 .622 26.426 .97 25.454-8.592 25.454-16.142 25.454-30.222 28.16-49.577 16.14-52.151 11.585-53.126 3.183-50.521 0-47.184-9.007-37.747-4.448-14.823-5.589-.62-3.5-1.012-1.061 1.419 0 0" fill="currentColor" fill-rule="evenodd"/><path transform="matrix(1,0,0,-1,713.65,42.20996)" d="M0 0C.016 .265 .038 .529 .06 .794-1.662 2.082-5.516 2.464-7.752 3.001-11.516 3.905-15.703 4.589-18.307 5.484-19.541 1.909-19.075-3.364-21.2-6.047-19.123-6.277-18.609-7.333-16.551-7.665-12.266-6.097-4.455-5.912-.839-3.189-.644-2.099-.386-1.028 0 0" fill="#ED1C24" fill-rule="evenodd"/></g></g></g></svg></a>
+  <nav aria-label="Footer"><a href="#book">Book a pitch</a><a href="#leagues">Leagues</a><a href="#live">Live</a></nav>
+  <p>Front page prototype built from the love.fútbol brand kit. All names and numbers are examples.</p>
+</div></footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function rng(s){return()=>(s=(s*1664525+1013904223)>>>0)/4294967296}
+
+/* ---------- live pitch ---------- */
+function Pitch(host,o){
+  const r=rng(o.seed||7),n=o.n||5,id='wob'+(o.seed||7);
+  host.innerHTML=`<svg class="pitch" viewBox="-8 -14 216 140" role="img" aria-label="${o.label||'A game in progress, seen from above'}">
+  <defs><filter id="${id}" x="-5%" y="-8%" width="110%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="${o.seed||7}"/><feDisplacementMap in="SourceGraphic" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter></defs>
+  <rect class="turf" width="200" height="120" rx="2" filter="url(#${id})"/>
+  <g class="lines" filter="url(#${id})"><path pathLength="1" d="M0 0H200V120H0Z"/><path pathLength="1" d="M100 0V120"/><circle pathLength="1" cx="100" cy="60" r="17"/><path pathLength="1" d="M0 30H28V90H0"/><path pathLength="1" d="M200 30H172V90H200"/><path pathLength="1" d="M0 47H-5V73H0"/><path pathLength="1" d="M200 47H205V73H200"/></g>
+  <path class="pole" d="M200 1V-11"/><path class="flagc" d="M200-11l9 2.6-9 3.4z"/><g class="men"></g></svg>`;
+  const men=host.querySelector('.men'),P=[];
+  const put=(el,x,y)=>el.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
+  for(let t=0;t<2;t++)for(let i=0;i<=n;i++){
+    const out=n-1,cols=Math.ceil(out/2),k=i-1,col=k>>1;
+    let hx=i?36+col*(56/Math.max(cols,1)):11,hy=i?(k%2?86:34):60;
+    if(i&&k===out-1&&out%2)hy=60;
+    if(i===n){hx=60;hy=60}
+    if(t)hx=200-hx;
+    const el=document.createElementNS(NS,'circle');el.setAttribute('r',3.8);el.setAttribute('class','pl '+(t?'b':'a'));
+    const p={t,i,hx,hy,x:hx,y:132,on:i<n,el};men.appendChild(el);
+    el.style.opacity=0;put(el,hx,132);P.push(p);
+  }
+  const ball=document.createElementNS(NS,'circle');ball.setAttribute('r',2.3);ball.setAttribute('class','ball');men.appendChild(ball);put(ball,100,60);
+  let holder=P[1],bx=100,by=60,score=[o.score?o.score[0]:0,o.score?o.score[1]:0];
+  function step(){
+    const on=P.filter(p=>p.on),mates=on.filter(p=>p.t===holder.t&&p!==holder),opp=on.filter(p=>p.t!==holder.t);
+    const adv=holder.t?holder.x<78:holder.x>122;let shot=false;
+    if(adv&&r()<.34){
+      shot=true;const goal=r()<.3;bx=holder.t?(goal?-2:5):(goal?202:195);by=52+r()*16;
+      if(goal){score[holder.t]++;o.onGoal&&o.onGoal(score)}
+      holder=opp.find(p=>!p.i)||opp[0];
+    }else if(r()<.2&&opp.length)holder=opp[r()*opp.length|0];
+    else if(mates.length){const a=mates[r()*mates.length|0],b=mates[r()*mates.length|0];holder=(holder.t?a.x<b.x:a.x>b.x)?a:b}
+    const tx=shot?bx:holder.hx+(holder.t?-14:14);
+    on.forEach(p=>{
+      const f=p.i?.3:.05;
+      p.x=Math.max(5,Math.min(195,p.hx+(tx-100)*f+(r()-.5)*(p.i?16:3)+(p===holder&&!shot?(p.t?-12:12):0)));
+      p.y=Math.max(6,Math.min(114,p.hy+((shot?60:holder.hy)-p.hy)*(p.i?.2:.1)+(r()-.5)*(p.i?18:8)));
+      p.el.style.opacity=1;put(p.el,p.x,p.y);
+    });
+    if(!shot){bx=holder.x+(holder.t?-4:4);by=holder.y+2}
+    put(ball,bx,by);
+  }
+  function toggle(){
+    const t=r()<.5?0:1,team=P.filter(p=>p.t===t),on=team.filter(p=>p.on),off=team.filter(p=>!p.on);
+    if(off.length&&(on.length<n||r()<.5)){const p=off[0];p.on=true}
+    else{const p=on[on.length-1];if(p.i){p.on=false;p.el.style.opacity=0;put(p.el,p.hx,132)}}
+    return count();
+  }
+  const count=()=>P.filter(p=>p.on).length;
+  if(still){P.forEach(p=>{if(p.on){p.el.style.opacity=1;put(p.el,p.hx,p.hy)}})}
+  else{setTimeout(()=>{step();setInterval(step,1050)},o.delay??1300)}
+  return{count,toggle,score:()=>score};
+}
+
+/* ---------- live figures (sample data) ---------- */
+const GAMES=[
+ {site:'Campo da Várzea',city:'Recife, Brazil',a:'Várzea Unidos',b:'Leões do Capibaribe',n:5,c:10,s:[2,1],min:23,tag:'Liga Comunitária'},
+ {site:'Cancha La Esperanza',city:'Mexico City, Mexico',a:'Barrio Norte',b:'Las Águilas',n:7,c:14,s:[0,0],min:8,tag:'Booked game'},
+ {site:'Cancha El Mirador',city:'Bogotá, Colombia',a:'Mirador FC',b:'Los Vecinos',n:5,c:9,s:[3,3],min:37,tag:'Liga del Barrio'},
+ {site:'Cancha Villa Nueva',city:'Guatemala City, Guatemala',a:'Villa Nueva',b:'Santa Fe',n:6,c:12,s:[1,0],min:15,tag:'Booked game'},
+ {site:'Potrero San Martín',city:'Buenos Aires, Argentina',a:'Los Pibes',b:'Club Unión',n:5,c:11,s:[4,2],min:44,tag:'Copa de Invierno'},
+ {site:'Eastside Community Pitch',city:'Houston, United States',a:'Eastside United',b:'Third Ward FC',n:7,c:13,s:[1,1],min:29,tag:'Booked game'}
+];
+const WORLD={games:19,otherPlayers:151,countries:6,today:1284};
+const lr=rng(42);
+const hero=Pitch($('heroPitch'),{n:5,seed:7,score:GAMES[0].s,onGoal:s=>{GAMES[0].s=[...s];paintGames()}});
+function setNum(el,v){
+  v=String(v);if(el.textContent===v)return;el.textContent=v;
+  if(!still&&el.animate)el.animate([{transform:'translateY(.35em)',opacity:.3},{transform:'none',opacity:1}],{duration:350,easing:'ease-out'});
+}
+function paintGames(pop){
+  $('games').innerHTML=GAMES.map((g,i)=>{
+    const cap=g.n*2+2;let d='';for(let k=0;k<cap;k++)d+=`<i class="${k<g.c?'on':''}${pop===i&&k===g.c-1?' pop':''}"></i>`;
+    return `<li><div class="where"><b>${g.site}</b><span>${g.city}</span></div><div class="teams">${g.a}<span class="sc">${g.s[0]}–${g.s[1]}</span>${g.b}</div><div class="dots" aria-label="${g.c} players">${d}<em>${g.c}</em></div><div class="min">${g.min} min</div></li>`}).join('');
+  if(pop!=null)setTimeout(()=>{const p=document.querySelector('.dots .pop');p&&p.classList.remove('pop')},60);
+  const g=GAMES[0];$('hSite').textContent=g.site+', '+g.city.split(',')[0];$('hScore').textContent=`${g.a} ${g.s[0]}–${g.s[1]} ${g.b}`;
+  setNum($('hCount'),g.c);setNum($('fGame'),g.c);
+  setNum($('fTeams'),WORLD.games*2);setNum($('fPlayers'),GAMES.reduce((a,x)=>a+x.c,0)+WORLD.otherPlayers);
+  setNum($('tGames'),WORLD.games);setNum($('tPitches'),WORLD.games);setNum($('tCountries'),WORLD.countries);setNum($('tToday'),WORLD.today.toLocaleString('en-GB'));
+  $('gamesNote').textContent=`Showing ${GAMES.length} of ${WORLD.games} games. A filled dot is a player on the pitch.`;
+}
+GAMES[0].c=hero.count();paintGames();
+if(!still){
+  setInterval(()=>{
+    const i=lr()*GAMES.length|0,g=GAMES[i];
+    if(i===0)g.c=hero.toggle();
+    else{const d=lr()<.5?-1:1;g.c=Math.max(g.n*2-2,Math.min(g.n*2+2,g.c+d))}
+    WORLD.otherPlayers=Math.max(120,Math.min(190,WORLD.otherPlayers+((lr()*5|0)-2)));
+    if(lr()<.5)WORLD.today+=1+(lr()*3|0);
+    if(lr()<.12){const d=lr()<.5?-1:1;WORLD.games=Math.max(16,Math.min(23,WORLD.games+d));WORLD.otherPlayers+=d*10}
+    paintGames(i);
+  },2600);
+  setInterval(()=>{GAMES.forEach(g=>{g.min=g.min>=50?1:g.min+1});paintGames()},60000);
+}
+
+/* ---------- booking ---------- */
+const SITES={
+ 'Brazil':[{name:'Campo da Várzea, Recife',pitches:2,league:['VU','LC','EM','SA','BR','UT']},{name:'Quadra do Morro, Rio de Janeiro',pitches:1}],
+ 'Mexico':[{name:'Cancha La Esperanza, Mexico City',pitches:3,league:['BN','LA','SJ','TL']}],
+ 'Colombia':[{name:'Cancha El Mirador, Bogotá',pitches:2,league:['MF','LV','SC','BA']}],
+ 'Guatemala':[{name:'Cancha Villa Nueva, Guatemala City',pitches:1}],
+ 'Argentina':[{name:'Potrero San Martín, Buenos Aires',pitches:2,league:['LP','CU','VL','BO']}],
+ 'United States':[{name:'Eastside Community Pitch, Houston',pitches:2}]
+};
+const HOURS=[15,16,17,18,19,20,21];
+const DAYS=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()+i);return d});
+let day=0,pick=null;
+const cSel=$('country'),sSel=$('site');
+cSel.innerHTML=Object.keys(SITES).map(c=>`<option>${c}</option>`).join('');
+function fillSites(){sSel.innerHTML=SITES[cSel.value].map((s,i)=>`<option value="${i}">${s.name}</option>`).join('')}
+function site(){return SITES[cSel.value][+sSel.value]}
+function paintDays(){
+  $('days').innerHTML=DAYS.map((d,i)=>`<button aria-pressed="${i===day}" data-d="${i}">${i?d.toLocaleDateString('en-GB',{weekday:'short'}):'Today'}<b>${d.getDate()}</b>${d.toLocaleDateString('en-GB',{month:'short'})}</button>`).join('');
+}
+function paintSlots(){
+  const s=site(),key=Object.keys(SITES).indexOf(cSel.value)*97+(+sSel.value)*31+DAYS[day].getDate()*7;
+  const r=rng(key+3);let h='<span></span>'+HOURS.map(x=>`<span class="h">${x}:00</span>`).join('');
+  for(let p=1;p<=s.pitches;p++){
+    h+=`<span class="p">Pitch ${p}</span>`;
+    HOURS.forEach(x=>{
+      const v=r(),id=p+'-'+x;
+      if(s.league&&v<.2){const a=s.league[r()*s.league.length|0];let b;do{b=s.league[r()*s.league.length|0]}while(b===a);
+        h+=`<button class="slot fix" disabled aria-label="Pitch ${p}, ${x}:00, league fixture ${a} v ${b}">${a} v ${b}</button>`}
+      else if(v<(x>=18?.6:.38))h+=`<button class="slot taken" disabled aria-label="Pitch ${p}, ${x}:00, booked">Booked</button>`;
+      else h+=`<button class="slot${pick===id?' sel':''}" data-id="${id}" aria-pressed="${pick===id}" aria-label="Pitch ${p}, ${x}:00, free">${pick===id?'Picked':'Free'}</button>`;
+    });
+  }
+  $('slots').innerHTML=h;
+  $('slots').style.gridTemplateColumns='';
+}
+function paintSum(done){
+  const b=$('reserve');
+  if(!pick){$('sum').innerHTML='<b>No hour picked yet</b>Tap a free hour in the timetable.';b.disabled=true;b.textContent='Reserve this hour';return}
+  const [p,x]=pick.split('-'),d=DAYS[day].toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  $('sum').innerHTML=`<b>Pitch ${p}, ${x}:00 to ${+x+1}:00</b>${d} at ${site().name}.`+(done?' Reserved in this prototype. No real booking was made.':'');
+  b.disabled=!!done;b.textContent=done?'Reserved':'Reserve this hour';
+}
+function resetPick(){pick=null;paintSlots();paintSum()}
+cSel.onchange=()=>{fillSites();resetPick()};sSel.onchange=resetPick;
+$('days').onclick=e=>{const b=e.target.closest('button');if(!b)return;day=+b.dataset.d;paintDays();resetPick()};
+$('slots').onclick=e=>{const b=e.target.closest('.slot[data-id]');if(!b)return;pick=pick===b.dataset.id?null:b.dataset.id;paintSlots();paintSum()};
+$('reserve').onclick=()=>paintSum(true);
+fillSites();paintDays();paintSlots();paintSum();
+
+/* ---------- league ---------- */
+const TEAMS=['Várzea Unidos','Leões do Capibaribe','Estrela do Morro','Santo Amaro FC','Beira Rio','Unidas da Torre'];
+const WHEN=['Thu 18:00, Pitch 1','Thu 19:00, Pitch 1','Thu 19:00, Pitch 2','Sat 16:00, Pitch 1','Sat 16:00, Pitch 2','Sat 17:00, Pitch 1','Sun 16:00, Pitch 1','Sun 17:00, Pitch 1','Sun 18:00, Pitch 1'];
+const FLAG='<svg viewBox="0 0 16 18" aria-hidden="true"><path d="M2 1v16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 2l12 3.5L3 10z" fill="#ED1C24"/></svg>';
+let L;
+function newSeason(){
+  const r=rng(11+(newSeason.k=(newSeason.k||0)+1)*5),idx=[0,1,2,3,4,5],rounds=[];
+  for(let k=0;k<5;k++){rounds.push([[idx[0],idx[5]],[idx[1],idx[4]],[idx[2],idx[3]]]);idx.splice(1,0,idx.pop())}
+  const goal=()=>{const v=r();return v<.25?0:v<.55?1:v<.8?2:v<.93?3:4};
+  L={r,goal,played:[],queue:[],sf:[null,null],fin:null,done:false};
+  rounds.forEach((rd,k)=>rd.forEach(m=>{if(k<3)L.played.push({a:m[0],b:m[1],s:[goal(),goal()]});else L.queue.push({type:'league',a:m[0],b:m[1]})}));
+  L.queue.push({type:'sf',k:0},{type:'sf',k:1},{type:'final'});
+  L.queue.forEach((q,i)=>q.when=WHEN[i]);
+}
+function table(){
+  const T=TEAMS.map((name,i)=>({i,name,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}));
+  L.played.forEach(m=>{const A=T[m.a],B=T[m.b];A.p++;B.p++;A.gf+=m.s[0];A.ga+=m.s[1];B.gf+=m.s[1];B.ga+=m.s[0];
+    if(m.s[0]>m.s[1]){A.w++;B.l++;A.pts+=3}else if(m.s[0]<m.s[1]){B.w++;A.l++;B.pts+=3}else{A.d++;B.d++;A.pts++;B.pts++}});
+  return T.sort((x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf||x.name.localeCompare(y.name));
+}
+function paintTable(){
+  const tb=$('tbody'),old={};[...tb.children].forEach(tr=>old[tr.dataset.i]=tr.getBoundingClientRect().top);
+  const T=table();
+  tb.innerHTML=T.map((t,k)=>`<tr data-i="${t.i}" class="${k===3?'cut':''}"><td>${k+1}</td><td>${t.name}</td><td>${t.p}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.gf-t.ga>0?'+':''}${t.gf-t.ga}</td><td>${t.pts}</td></tr>`).join('');
+  if(!still)[...tb.children].forEach(tr=>{const o=old[tr.dataset.i];if(o==null)return;const d=o-tr.getBoundingClientRect().top;
+    if(d)tr.animate([{transform:`translateY(${d}px)`},{transform:'none'}],{duration:500,easing:'cubic-bezier(.2,.8,.2,1)'})});
+  return T;
+}
+function tie(el,m,x,y,label){
+  const row=(name,s,w)=>`<div class="${name?(w?'w':''):'tbd'}"><span>${name||'To be decided'}</span><span class="num">${s??''}</span></div>`;
+  el.innerHTML=row(m?TEAMS[m.a]:x,m&&m.s?m.s[0]:null,m&&m.s&&m.s[0]>m.s[1])+row(m?TEAMS[m.b]:y,m&&m.s?m.s[1]:null,m&&m.s&&m.s[1]>m.s[0])+`<small>${label}</small>`;
+}
+function paintLeague(){
+  const T=paintTable(),leagueLeft=L.queue.filter(q=>q.type==='league').length;
+  const seed=k=>leagueLeft?null:T[k].i;
+  const sfPairs=[[0,3],[1,2]];
+  [0,1].forEach(k=>{
+    const m=L.sf[k]||(leagueLeft?null:{a:seed(sfPairs[k][0]),b:seed(sfPairs[k][1])});
+    if(m)tie($('sf'+(k+1)),m,'','','Semi-final '+(k+1));
+    else{$('sf'+(k+1)).innerHTML=`<div class="tbd"><span>${k?'2nd place':'1st place'}</span></div><div class="tbd"><span>${k?'3rd place':'4th place'}</span></div><small>Semi-final ${k+1}</small>`}
+  });
+  const win=m=>m&&m.s?(m.s[0]>m.s[1]?m.a:m.b):null,w1=win(L.sf[0]),w2=win(L.sf[1]);
+  if(L.fin)tie($('fin'),L.fin,'','','Final');
+  else $('fin').innerHTML=`<div class="${w1==null?'tbd':''}"><span>${w1==null?'Winner of semi-final 1':TEAMS[w1]}</span></div><div class="${w2==null?'tbd':''}"><span>${w2==null?'Winner of semi-final 2':TEAMS[w2]}</span></div><small>Final</small>`;
+  $('champ').innerHTML=L.fin?FLAG+TEAMS[win(L.fin)]+' are champions.':'';
+  const q=L.queue[0];
+  if(!q){$('nextFix').innerHTML='Season finished.<span>Reset to draw up a new set of fixtures.</span>';$('play').textContent='Reset the season';}
+  else{
+    let a,b;if(q.type==='league'){a=q.a;b=q.b}else if(q.type==='sf'){a=T[sfPairs[q.k][0]].i;b=T[sfPairs[q.k][1]].i}else{a=w1;b=w2}
+    const kind=q.type==='league'?'League match':q.type==='sf'?'Semi-final '+(q.k+1):'Final';
+    $('nextFix').innerHTML=`${TEAMS[a]} v ${TEAMS[b]}<span>${kind}. ${q.when}, Campo da Várzea.</span>`;$('play').textContent='Record the next result';
+  }
+  $('results').innerHTML=L.log.slice(-3).reverse().map(x=>`<li>${x}</li>`).join('');
+}
+function playNext(){
+  const q=L.queue.shift();if(!q){newSeason();L.log=[];paintLeague();return}
+  const T=table(),g=L.goal;
+  if(q.type==='league'){const m={a:q.a,b:q.b,s:[g(),g()]};L.played.push(m);L.log.push(`${TEAMS[m.a]} ${m.s[0]}–${m.s[1]} ${TEAMS[m.b]}`)}
+  else{
+    let a,b;if(q.type==='sf'){const pr=[[0,3],[1,2]][q.k];a=T[pr[0]].i;b=T[pr[1]].i}
+    else{const w=m=>m.s[0]>m.s[1]?m.a:m.b;a=w(L.sf[0]);b=w(L.sf[1])}
+    let s;do{s=[g(),g()]}while(s[0]===s[1]);
+    const m={a,b,s};if(q.type==='sf')L.sf[q.k]=m;else L.fin=m;
+    L.log.push(`${q.type==='sf'?'Semi-final':'Final'}: ${TEAMS[a]} ${s[0]}–${s[1]} ${TEAMS[b]}`);
+  }
+  paintLeague();
+}
+newSeason();L.log=[];paintLeague();
+$('play').onclick=playNext;
+</script>
+
+</html>
