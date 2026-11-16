@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>love.fútbol | Book a pitch, play a league, see who's playing</title>
+<meta name="description" content="Reserve time on a community pitch, enter your team in a league, and see who is playing right now across love.fútbol sites.">
+<style>
+@font-face { font-family: "Bahianita"; src: url("../brand-src/fonts/Bahianita-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Red Hat Text"; src: url("../brand-src/fonts/RedHatText-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Red Hat Text"; src: url("../brand-src/fonts/RedHatText-Italic.ttf") format("truetype"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "Red Hat Text"; src: url("../brand-src/fonts/RedHatText-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+
+:root {
+  --green: #489D60;
+  --light-green: #88C59B;
+  --terracotta: #D17F2D;
+  --cyan: #3CB1EA;
+  --off-white: #F5F4EF;
+  --charcoal: #1D1D1B;
+  --forest: #081913;
+  --red: #ED1C24;
+  --amber: #F5A300;
+  --white: #FFFFFF;
+
+  --display: "Bahianita", "Red Hat Text", sans-serif;
+  --body: "Red Hat Text", Arial, sans-serif;
+
+  --gutter: clamp(16px, 4vw, 56px);
+  --max: 1320px;
+  /* hand-drawn corners, echoing the uneven pitch outline in the logo */
+  --rough: 14px 4px 12px 5px / 5px 12px 4px 14px;
+  --rough-sm: 8px 3px 7px 3px / 3px 7px 3px 8px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--charcoal);
+  background: var(--off-white);
+  -webkit-font-smoothing: antialiased;
+}
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; }
+button { font: inherit; color: inherit; cursor: pointer; }
+h1, h2, h3, p { margin: 0; }
+:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
+
+.wrap { max-width: var(--max); margin-inline: auto; padding-inline: var(--gutter); }
+.display { font-family: var(--display); font-weight: 400; line-height: 0.88; letter-spacing: 0; }
+.h2 { font-size: clamp(3.5rem, 8.5vw, 7.5rem); }
+.lede { font-size: clamp(1.0625rem, 1.4vw, 1.25rem); max-width: 34em; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 52px; padding: 0 1.5rem;
+  font-weight: 700; font-size: 1.0625rem; text-decoration: none;
+  border: 2.5px solid var(--charcoal); border-radius: var(--rough);
+  background: var(--charcoal); color: var(--off-white);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.btn:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--forest); }
+.btn:active { transform: none; box-shadow: none; }
+.btn-line { background: transparent; color: var(--forest); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* ───────── Header ───────── */
+.top { background: var(--green); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: 18px 10px; }
+.top .logo img { width: clamp(104px, 11vw, 144px); height: auto; }
+.top nav { display: flex; align-items: center; gap: clamp(.75rem, 2.4vw, 2.25rem); }
+.top nav a { font-weight: 700; color: var(--forest); text-decoration: none; padding: .5rem 0; border-bottom: 2.5px solid transparent; }
+.top nav a:hover { border-bottom-color: var(--forest); }
+.top nav a.signin { border: 2.5px solid var(--forest); border-radius: var(--rough-sm); padding: .45rem 1rem; }
+.top nav a.signin:hover { background: var(--forest); color: var(--off-white); }
+@media (max-width: 720px) { .top nav a.sec { display: none; } }
+
+/* ───────── Hero: the page opens on a pitch ───────── */
+.hero { background: var(--green); padding: 8px 0 var(--gutter); overflow: hidden; }
+.pitch {
+  position: relative;
+  display: grid; grid-template-columns: 1fr 1fr;
+  min-height: min(78vh, 760px);
+}
+.pitch-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.pitch-lines path, .game-lines path {
+  fill: none; stroke: var(--white); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  animation: draw .9s cubic-bezier(.6,.1,.3,1) forwards;
+  animation-delay: calc(var(--i, 0) * 110ms + 150ms);
+}
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.spot {
+  position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px;
+  border: 5px solid var(--white); border-radius: 50%; background: var(--green);
+  transform: scale(0); animation: pop .4s cubic-bezier(.3,1.6,.5,1) 1.05s forwards;
+}
+.flag { position: absolute; right: -6px; top: -20px; width: 38px; height: 30px; transform-origin: 0 100%; transform: scale(0) rotate(-20deg); animation: pop-flag .45s cubic-bezier(.3,1.6,.5,1) 1.25s forwards; }
+@keyframes pop { to { transform: scale(1); } }
+@keyframes pop-flag { to { transform: scale(1) rotate(0); } }
+
+.hero-copy {
+  position: relative; z-index: 1;
+  padding: clamp(28px, 5vw, 72px) clamp(20px, 4vw, 56px);
+  display: flex; flex-direction: column; justify-content: center; gap: clamp(1.25rem, 2.4vw, 2rem);
+}
+.hero h1 { font-size: clamp(4.5rem, 8.4vw, 9.5rem); color: var(--white); }
+.hero h1 span { display: block; white-space: nowrap; }
+.hero .lede { color: var(--forest); font-weight: 700; max-width: 27em; }
+.cta-row { display: flex; flex-wrap: wrap; gap: .875rem; }
+
+.game { position: relative; min-height: 340px; }
+.game svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.player { opacity: 0; transition: opacity .5s ease; }
+.kicked-off .player { opacity: 1; }
+.now {
+  position: absolute; left: 50%; bottom: clamp(18px, 3vw, 34px); transform: translateX(-50%);
+  display: flex; align-items: center; gap: .6rem; white-space: nowrap;
+  background: var(--forest); color: var(--off-white);
+  padding: .5rem .95rem; border-radius: var(--rough-sm); font-size: .9375rem;
+}
+.now b { font-weight: 700; }
+.pulse { width: 10px; height: 10px; border-radius: 50%; background: var(--red); flex: none; animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .3; transform: scale(.7); } }
+
+@media (max-width: 900px) {
+  .pitch { grid-template-columns: 1fr; min-height: 0; }
+  .pitch-lines .centre, .spot { display: none; }
+  .game { min-height: 0; aspect-ratio: 560 / 440; margin: 0 6px 6px; }
+  .now { font-size: .8125rem; }
+}
+
+/* ───────── Booking ───────── */
+.book { padding: clamp(64px, 9vw, 128px) 0; }
+.book-grid { display: grid; grid-template-columns: minmax(260px, 5fr) 8fr; gap: clamp(28px, 5vw, 80px); align-items: start; }
+.book-intro { display: grid; gap: 1.5rem; }
+.sites { display: grid; gap: .5rem; margin: 0; padding: 0; border: 0; }
+.sites legend { font-weight: 700; padding: 0; margin-bottom: .6rem; }
+.site { position: relative; }
+.site input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.site span {
+  display: flex; justify-content: space-between; gap: 1rem; align-items: baseline;
+  padding: .7rem .95rem; border: 2.5px solid transparent; border-bottom-color: color-mix(in srgb, var(--charcoal) 18%, transparent);
+  border-radius: var(--rough-sm);
+}
+.site span small { font-size: .875rem; color: color-mix(in srgb, var(--charcoal) 72%, transparent); }
+.site input:checked + span { border-color: var(--charcoal); background: var(--white); font-weight: 700; }
+.site input:focus-visible + span { outline: 3px solid var(--cyan); outline-offset: 2px; }
+
+.sheet { background: var(--white); border: 2.5px solid var(--charcoal); border-radius: var(--rough); padding: clamp(16px, 2.4vw, 28px); }
+.days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 1.25rem; }
+.day {
+  background: none; border: 2.5px solid transparent; border-radius: var(--rough-sm);
+  padding: .45rem 0 .55rem; text-align: center; line-height: 1.1;
+}
+.day small { display: block; font-size: .8125rem; }
+.day strong { font-family: var(--display); font-weight: 400; font-size: 2.25rem; line-height: .9; }
+.day:hover { border-color: color-mix(in srgb, var(--charcoal) 25%, transparent); }
+.day[aria-pressed="true"] { background: var(--charcoal); color: var(--off-white); }
+
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+.slot {
+  min-height: 58px; padding: .35rem .5rem; text-align: left; line-height: 1.15;
+  border: 2.5px solid var(--green); border-radius: var(--rough-sm);
+  background: color-mix(in srgb, var(--light-green) 28%, var(--white));
+  font-weight: 700; font-variant-numeric: tabular-nums;
+  transition: transform .12s ease, background .12s ease;
+}
+.slot small { display: block; font-weight: 400; font-size: .75rem; }
+.slot:hover:not([disabled]) { transform: translateY(-2px); background: var(--light-green); }
+.slot[aria-pressed="true"] { background: var(--green); color: var(--white); border-color: var(--forest); transform: rotate(-1.5deg) scale(1.04); }
+.slot.taken { border-color: transparent; background: color-mix(in srgb, var(--charcoal) 7%, var(--white)); color: color-mix(in srgb, var(--charcoal) 60%, transparent); cursor: not-allowed; }
+.slot.league { border-color: var(--terracotta); background: color-mix(in srgb, var(--terracotta) 20%, var(--white)); color: var(--charcoal); cursor: not-allowed; }
+.slot.mine { border-color: var(--forest); background: var(--forest); color: var(--off-white); cursor: default; }
+
+.key { display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; margin: 1.1rem 0 0; padding: 0; list-style: none; font-size: .875rem; }
+.key li { display: flex; align-items: center; gap: .45rem; }
+.key i { width: 14px; height: 14px; border-radius: 3px; border: 2.5px solid var(--green); background: color-mix(in srgb, var(--light-green) 28%, var(--white)); }
+.key .k-taken { border-color: transparent; background: color-mix(in srgb, var(--charcoal) 14%, var(--white)); }
+.key .k-league { border-color: var(--terracotta); background: color-mix(in srgb, var(--terracotta) 20%, var(--white)); }
+
+.pick { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 2.5px solid var(--charcoal); }
+.pick p { max-width: 30em; }
+@media (max-width: 860px) { .book-grid { grid-template-columns: 1fr; } }
+
+/* ───────── Leagues ───────── */
+.leagues { background: var(--terracotta); padding: clamp(64px, 9vw, 128px) 0; }
+.leagues-head { display: grid; grid-template-columns: 7fr 5fr; gap: clamp(24px, 4vw, 64px); align-items: end; margin-bottom: clamp(32px, 5vw, 64px); }
+.leagues-head .lede { color: var(--forest); }
+.league-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(20px, 3vw, 40px); align-items: start; }
+.panel { background: var(--off-white); border: 2.5px solid var(--charcoal); border-radius: var(--rough); padding: clamp(16px, 2.2vw, 28px); }
+.panel h3 { font-family: var(--display); font-weight: 400; font-size: 2.5rem; line-height: .95; margin-bottom: .75rem; }
+.panel + .panel { margin-top: clamp(20px, 3vw, 40px); }
+
+table.standings { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.standings th { text-align: right; font-size: .8125rem; font-weight: 400; padding: .35rem .5rem; color: color-mix(in srgb, var(--charcoal) 75%, transparent); }
+.standings th:nth-child(2), .standings td:nth-child(2) { text-align: left; width: 100%; }
+.standings td { text-align: right; padding: .6rem .5rem; border-top: 1.5px solid color-mix(in srgb, var(--charcoal) 16%, transparent); white-space: nowrap; }
+.standings td:first-child { font-family: var(--display); font-size: 1.75rem; line-height: 1; padding-right: .25rem; }
+.standings td:last-child { font-weight: 700; }
+.standings tr { background: var(--off-white); }
+.standings tr.cut td { border-bottom: 3px dashed var(--terracotta); }
+.standings tr.moved { position: relative; z-index: 1; }
+.cut-note { font-size: .875rem; margin-top: .8rem; display: flex; gap: .5rem; align-items: center; }
+.cut-note::before { content: ""; width: 28px; border-top: 3px dashed var(--terracotta); }
+
+.fixtures { list-style: none; margin: 0; padding: 0; }
+.fixtures li { display: grid; grid-template-columns: 1fr auto 1fr; gap: .75rem; align-items: center; padding: .7rem 0; border-top: 1.5px solid color-mix(in srgb, var(--charcoal) 16%, transparent); }
+.fixtures li:first-child { border-top: 0; }
+.fixtures .home { text-align: right; }
+.fixtures .score { font-family: var(--display); font-size: 2rem; line-height: 1; min-width: 3.2ch; text-align: center; }
+.fixtures .when { grid-column: 1 / -1; text-align: center; font-size: .8125rem; margin-top: -.35rem; color: color-mix(in srgb, var(--charcoal) 75%, transparent); }
+.fixtures .win { font-weight: 700; }
+.play-row { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin-top: 1.25rem; }
+.play-row p { font-size: .875rem; flex: 1 1 12em; }
+
+.bracket { display: grid; grid-template-columns: 1fr 28px 1fr; align-items: center; }
+.b-col { display: grid; gap: 18px; }
+.tie { border: 2.5px solid var(--charcoal); border-radius: var(--rough-sm); background: var(--white); }
+.tie div { display: flex; justify-content: space-between; gap: .5rem; padding: .45rem .7rem; min-height: 2.4rem; }
+.tie div + div { border-top: 1.5px solid color-mix(in srgb, var(--charcoal) 16%, transparent); }
+.tie .w { font-weight: 700; background: color-mix(in srgb, var(--light-green) 40%, var(--white)); }
+.tie .tbd { color: color-mix(in srgb, var(--charcoal) 60%, transparent); font-style: italic; }
+.join { align-self: stretch; position: relative; }
+.join::before { content: ""; position: absolute; inset: 25% 50% 25% 0; border: 2.5px solid var(--charcoal); border-left: 0; border-radius: 0 8px 8px 0; }
+.join::after { content: ""; position: absolute; left: 50%; right: 0; top: 50%; border-top: 2.5px solid var(--charcoal); }
+.tie { font-size: .9375rem; line-height: 1.25; }
+.champ { margin-top: 1rem; font-family: var(--display); font-size: 2.25rem; line-height: 1; min-height: 2.25rem; }
+@media (max-width: 900px) { .leagues-head, .league-grid { grid-template-columns: 1fr; } }
+
+/* ───────── Live ───────── */
+.live { background: var(--forest); color: var(--off-white); padding: clamp(64px, 9vw, 128px) 0; }
+.live-line { font-size: clamp(3.25rem, 8.2vw, 8rem); max-width: 13em; }
+.live-line .n { color: var(--amber); display: inline-block; font-variant-numeric: tabular-nums; }
+.live-line .n.tick { animation: tick .5s ease; }
+@keyframes tick { 30% { transform: translateY(-.08em) scale(1.12); } }
+.live-sub { display: flex; align-items: center; gap: .6rem; margin: 1.5rem 0 clamp(32px, 5vw, 56px); color: var(--light-green); }
+
+.games { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: clamp(20px, 2.6vw, 36px) clamp(16px, 2.4vw, 32px); list-style: none; margin: 0; padding: 0; }
+.g-head { display: flex; justify-content: space-between; align-items: baseline; gap: .75rem; margin-bottom: .5rem; }
+.g-head b { font-weight: 700; }
+.g-head small { display: block; color: var(--light-green); font-size: .8125rem; }
+.g-count { font-family: var(--display); font-size: 2.75rem; line-height: .8; color: var(--amber); font-variant-numeric: tabular-nums; }
+.mini { width: 100%; height: auto; overflow: visible; }
+.mini .ln { fill: none; stroke: var(--light-green); stroke-width: 2.5; stroke-linecap: round; }
+.mini circle { transform-box: fill-box; transform-origin: center; animation: join .45s cubic-bezier(.3,1.7,.5,1) both, drift 5s ease-in-out infinite alternate; animation-delay: 0s, var(--d, 0s); }
+.mini .a { fill: var(--off-white); }
+.mini .b { fill: var(--cyan); }
+.mini circle.leaving { animation: leave .35s ease forwards; }
+@keyframes join { from { transform: scale(0); } }
+@keyframes leave { to { transform: scale(0); opacity: 0; } }
+@keyframes drift { from { translate: -3px 2px; } to { translate: 4px -3px; } }
+
+.totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem 2rem; margin: clamp(40px, 6vw, 80px) 0 0; padding: clamp(24px, 3vw, 36px) 0 0; border-top: 2.5px solid color-mix(in srgb, var(--light-green) 45%, transparent); }
+.totals div { display: flex; flex-direction: column-reverse; }
+.totals dt { color: var(--light-green); }
+.totals dd { margin: 0; font-family: var(--display); font-size: clamp(3rem, 5vw, 4.5rem); line-height: .9; }
+
+/* ───────── Close ───────── */
+.close { background: var(--green); padding: clamp(56px, 8vw, 112px) 0; }
+.close .wrap { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 2rem; }
+.close h2 { color: var(--white); max-width: 9em; }
+footer { background: var(--forest); color: var(--off-white); padding: 40px 0; font-size: .9375rem; }
+footer .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem 3rem; }
+footer img { width: 132px; height: auto; }
+footer p { max-width: 38em; color: var(--light-green); }
+footer ul { display: flex; gap: 1.5rem; list-style: none; margin: 0; padding: 0; }
+
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .001s !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#" aria-label="love.fútbol home"><img src="../brand-src/reference/logo-source-reversed.svg" alt="love.fútbol" width="350" height="199"></a>
+    <nav aria-label="Main">
+      <a class="sec" href="#book">Book a pitch</a>
+      <a class="sec" href="#leagues">Leagues</a>
+      <a class="sec" href="#live">Live</a>
+      <a class="signin" href="#">Sign in</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap">
+    <div class="pitch" id="pitch">
+      <svg class="pitch-lines" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
+        <path style="--i:0" pathLength="1" d="M10 13 C300 8 700 17 990 10"/>
+        <path style="--i:1" pathLength="1" d="M990 10 C993 80 987 150 991 212"/>
+        <path style="--i:2" pathLength="1" d="M991 388 C994 450 988 530 990 589"/>
+        <path style="--i:3" pathLength="1" d="M990 589 C700 594 300 584 11 591"/>
+        <path style="--i:4" pathLength="1" d="M11 591 C7 520 13 450 9 388"/>
+        <path style="--i:5" pathLength="1" d="M9 212 C13 150 7 80 10 13"/>
+        <path class="centre" style="--i:6" pathLength="1" d="M499 11 C504 200 495 400 500 590"/>
+      </svg>
+      <span class="spot" aria-hidden="true"></span>
+      <svg class="flag" viewBox="0 0 38 30" aria-hidden="true"><path d="M3 29 L4 3" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="M5 3 C14 0 24 3 35 6 C26 10 16 12 5 15 Z" fill="#ED1C24"/></svg>
+
+      <div class="hero-copy">
+        <h1 class="display"><span>Book the pitch.</span><span>Play the league.</span><span>See who's on.</span></h1>
+        <p class="lede">Reserve an hour on a community pitch, enter your team in a league, and watch games happening right now at love.fútbol sites around the world.</p>
+        <div class="cta-row">
+          <a class="btn" href="#book">Book a pitch</a>
+          <a class="btn btn-line" href="#live">See live games</a>
+        </div>
+      </div>
+
+      <div class="game" id="game">
+        <svg viewBox="0 0 560 520" preserveAspectRatio="xMidYMid meet" role="img" aria-label="A five-a-side game in progress, drawn from above">
+          <g class="game-lines">
+            <path style="--i:8" pathLength="1" d="M2 178 C92 186 104 334 3 342"/>
+            <path style="--i:9" pathLength="1" d="M556 128 C500 124 462 133 432 129 C427 250 436 330 431 394 C470 398 520 390 556 395"/>
+          </g>
+          <g id="players"></g>
+          <circle id="ball" class="player" r="7" fill="#F5A300" stroke="#1D1D1B" stroke-width="2.5"/>
+        </svg>
+        <p class="now"><span class="pulse"></span><span>Playing now at <b>Hissey Playground, Philadelphia</b></span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="book" id="book">
+  <div class="wrap book-grid">
+    <div class="book-intro">
+      <h2 class="display h2">Reserve an hour on the pitch</h2>
+      <p class="lede">Pick a site and a day. Green hours are open. League matches already have their place on the same calendar, so nobody turns up to a full pitch.</p>
+      <fieldset class="sites" id="sites"><legend>Choose a site</legend></fieldset>
+    </div>
+    <div class="sheet">
+      <div class="days" id="days" role="group" aria-label="Day"></div>
+      <div class="slots" id="slots" role="group" aria-label="Hours"></div>
+      <ul class="key">
+        <li><i></i>Open</li>
+        <li><i class="k-taken"></i>Taken</li>
+        <li><i class="k-league"></i>League match</li>
+      </ul>
+      <div class="pick">
+        <p id="pick-text" aria-live="polite">Choose an open hour to reserve it.</p>
+        <button class="btn" id="reserve" disabled>Reserve</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="leagues" id="leagues">
+  <div class="wrap">
+    <div class="leagues-head">
+      <h2 class="display h2">Leagues that run themselves</h2>
+      <p class="lede">Register your team. Fixtures are drawn up and placed on the pitches you already book. Enter a result and the table and the knockout bracket update on their own. Try it with the league below.</p>
+    </div>
+    <div class="league-grid">
+      <div>
+        <div class="panel">
+          <h3>Hissey Playground Winter League</h3>
+          <table class="standings">
+            <thead><tr><th><span class="sr">Position</span></th><th>Team</th><th><abbr title="Played">P</abbr></th><th><abbr title="Won">W</abbr></th><th><abbr title="Drawn">D</abbr></th><th><abbr title="Lost">L</abbr></th><th><abbr title="Goal difference">GD</abbr></th><th><abbr title="Points">Pts</abbr></th></tr></thead>
+            <tbody id="table"></tbody>
+          </table>
+          <p class="cut-note">Top four go to the semi-finals</p>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <h3 id="md-title">Matchday 3</h3>
+          <ul class="fixtures" id="fixtures"></ul>
+          <div class="play-row">
+            <button class="btn" id="play">Play matchday 3</button>
+            <p id="md-note">Results here are made up on the spot.</p>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Knockout</h3>
+          <div class="bracket">
+            <div class="b-col">
+              <div class="tie" id="sf1"></div>
+              <div class="tie" id="sf2"></div>
+            </div>
+            <div class="join" aria-hidden="true"></div>
+            <div class="b-col"><div class="tie" id="final"></div></div>
+          </div>
+          <p class="champ" id="champ" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="live" id="live">
+  <div class="wrap">
+    <h2 class="display live-line" aria-live="off">Right now <span class="n" id="n-players">0</span> people on <span class="n" id="n-teams">0</span> teams are playing on <span class="n" id="n-games">0</span> pitches in <span class="n" id="n-countries">0</span> countries.</h2>
+    <p class="live-sub"><span class="pulse"></span>Each dot is a player on the pitch. Counts change as people join and leave.</p>
+    <ul class="games" id="games"></ul>
+    <dl class="totals">
+      <div><dt>games played today</dt><dd>41</dd></div>
+      <div><dt>hours booked this week</dt><dd>312</dd></div>
+      <div><dt>teams in a league this season</dt><dd>86</dd></div>
+      <div><dt>sites open for booking</dt><dd>14</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="close">
+  <div class="wrap">
+    <h2 class="display h2">Your pitch is open tonight.</h2>
+    <div class="cta-row">
+      <a class="btn" href="#book">Book a pitch</a>
+      <a class="btn btn-line" href="#leagues">Register a team</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <img src="../brand-src/reference/logo-source-reversed.svg" alt="love.fútbol" width="350" height="199">
+    <p>Design preview with sample data. Site names, teams, scores and live counts on this page are placeholders until the booking and stats services are connected.</p>
+    <ul><li><a href="#book">Book</a></li><li><a href="#leagues">Leagues</a></li><li><a href="#live">Live</a></li></ul>
+  </div>
+</footer>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const SVG = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs = {}, text) => { const n = document.createElement(tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (text != null) n.textContent = text; return n; };
+const sv = (tag, attrs = {}) => { const n = document.createElementNS(SVG, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const rnd = (a, b) => a + Math.random() * (b - a);
+const pickOne = a => a[Math.floor(Math.random() * a.length)];
+
+/* ───── Hero: a five-a-side played in one half ───── */
+(function heroGame() {
+  const W = 560, H = 520, layer = $('#players'), ballEl = $('#ball'), game = $('#game');
+  const homes = [
+    [[70, 260], [190, 140], [190, 380], [320, 200], [330, 330]],   // light team, attacking right
+    [[500, 262], [400, 150], [400, 372], [270, 120], [260, 400]],  // dark team, defending right
+  ];
+  const players = [];
+  homes.forEach((team, t) => team.forEach(([hx, hy], i) => {
+    const c = sv('circle', { r: 13, class: 'player', fill: t ? '#1D1D1B' : '#F5F4EF', stroke: t ? '#F5F4EF' : '#1D1D1B', 'stroke-width': 2.5 });
+    layer.appendChild(c);
+    players.push({ t, hx, hy, x: hx, y: hy, ph: rnd(0, 6.28), sp: rnd(.5, .9), node: c });
+  }));
+  let holder = 3, flight = null, holdFor = 1, ball = { x: 320, y: 200 };
+  const place = () => {
+    players.forEach(p => { p.node.setAttribute('cx', p.x.toFixed(1)); p.node.setAttribute('cy', p.y.toFixed(1)); });
+    ballEl.setAttribute('cx', ball.x.toFixed(1)); ballEl.setAttribute('cy', ball.y.toFixed(1));
+  };
+  place();
+  setTimeout(() => game.classList.add('kicked-off'), still ? 0 : 1500);
+  if (still) return;
+
+  const pass = () => {
+    const from = players[holder];
+    const steal = Math.random() < .22;
+    const options = players.map((p, i) => i).filter(i => i !== holder && (players[i].t === from.t) !== steal);
+    const to = pickOne(options);
+    const d = Math.hypot(players[to].x - from.x, players[to].y - from.y);
+    flight = { from: { x: ball.x, y: ball.y }, to, t: 0, dur: Math.max(.35, d / 420) };
+    holder = -1;
+  };
+  let last = 0, visible = true, t0 = 0;
+  new IntersectionObserver(e => { visible = e[0].isIntersecting; }).observe(game);
+  const frame = now => {
+    requestAnimationFrame(frame);
+    const dt = Math.min(.05, (now - last) / 1000 || 0); last = now;
+    if (!visible || document.hidden) return;
+    t0 += dt;
+    if (t0 < 1.9) return;                      // wait for the lines to be drawn
+    const side = holder >= 0 ? players[holder].t : players[flight.to].t;
+    let chaser = -1, best = 1e9;
+    players.forEach((p, i) => { if (p.t !== side) { const d = Math.hypot(p.x - ball.x, p.y - ball.y); if (d < best) { best = d; chaser = i; } } });
+    players.forEach((p, i) => {
+      const pull = i === chaser ? .8 : (p.t === side ? .3 : .2);
+      const push = p.t === side ? (p.t === 0 ? 40 : -40) : 0;   // team in possession steps forward
+      let tx = p.hx + (ball.x - p.hx) * pull + push + Math.sin(t0 * p.sp + p.ph) * 16;
+      let ty = p.hy + (ball.y - p.hy) * pull + Math.cos(t0 * p.sp * 1.3 + p.ph) * 16;
+      if (i === holder) { tx = p.x + (p.t === 0 ? 30 : -30); ty = p.y + Math.sin(t0 * 2 + p.ph) * 20; }
+      tx = Math.max(24, Math.min(W - 24, tx)); ty = Math.max(30, Math.min(H - 90, ty));
+      const k = 1 - Math.exp(-dt * (i === chaser ? 2.2 : 1.5));
+      p.x += (tx - p.x) * k; p.y += (ty - p.y) * k;
+    });
+    for (let a = 0; a < players.length; a++) for (let b = a + 1; b < players.length; b++) {   // keep players from stacking up
+      const A = players[a], B = players[b], dx = B.x - A.x, dy = B.y - A.y, d = Math.hypot(dx, dy) || 1;
+      if (d < 34) { const s = (34 - d) / 2 / d; A.x -= dx * s; A.y -= dy * s; B.x += dx * s; B.y += dy * s; }
+    }
+    if (holder >= 0) {
+      const p = players[holder];
+      ball.x = p.x + (p.t === 0 ? 15 : -15); ball.y = p.y + 9;
+      holdFor -= dt; if (holdFor <= 0) pass();
+    } else {
+      flight.t += dt / flight.dur;
+      const q = players[flight.to], e = Math.min(1, flight.t);
+      ball.x = flight.from.x + (q.x - flight.from.x) * e; ball.y = flight.from.y + (q.y - flight.from.y) * e;
+      if (e >= 1) { holder = flight.to; flight = null; holdFor = rnd(.5, 1.5); }
+    }
+    place();
+  };
+  requestAnimationFrame(frame);
+})();
+
+/* ───── Booking ───── */
+(function booking() {
+  const sites = [
+    { name: 'Hissey Playground', where: 'Philadelphia, USA' },
+    { name: 'Cancha Villa Nueva', where: 'Villa Nueva, Guatemala' },
+    { name: 'Campo do Ibura', where: 'Recife, Brazil' },
+    { name: 'Cancha La Unión', where: 'Mexico City, Mexico' },
+  ];
+  const state = { site: 0, day: 0, hour: null, mine: new Set() };
+  const sitesEl = $('#sites'), daysEl = $('#days'), slotsEl = $('#slots'), text = $('#pick-text'), reserve = $('#reserve');
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i); return d; });
+  const fmtDay = new Intl.DateTimeFormat('en', { weekday: 'short' });
+  const fmtLong = new Intl.DateTimeFormat('en', { weekday: 'long', day: 'numeric', month: 'long' });
+  const hh = h => String(h).padStart(2, '0') + ':00';
+  const key = h => [state.site, state.day, h].join('-');
+  const status = h => {
+    if (state.mine.has(key(h))) return 'mine';
+    const dow = days[state.day].getDay();
+    if ((dow === 6 || dow === 3) && (h === 18 || h === 19)) return 'league';
+    const n = (h * 7 + state.site * 3 + state.day * 5) % 10;
+    if (state.day === 0 && h <= new Date().getHours()) return 'taken';
+    return n < 3 ? 'taken' : 'open';
+  };
+
+  sites.forEach((s, i) => {
+    const label = el('label', { class: 'site' });
+    const input = el('input', { type: 'radio', name: 'site', value: i });
+    if (i === 0) input.checked = true;
+    input.addEventListener('change', () => { state.site = i; state.hour = null; draw(); });
+    const span = el('span'); span.append(document.createTextNode(s.name), el('small', {}, s.where));
+    label.append(input, span); sitesEl.appendChild(label);
+  });
+  days.forEach((d, i) => {
+    const b = el('button', { class: 'day', type: 'button', 'aria-label': fmtLong.format(d) });
+    b.append(el('small', {}, i === 0 ? 'Today' : fmtDay.format(d)), el('strong', {}, d.getDate()));
+    b.addEventListener('click', () => { state.day = i; state.hour = null; draw(); });
+    daysEl.appendChild(b);
+  });
+
+  function draw() {
+    [...daysEl.children].forEach((b, i) => b.setAttribute('aria-pressed', i === state.day));
+    slotsEl.textContent = '';
+    for (let h = 8; h <= 21; h++) {
+      const st = status(h);
+      const b = el('button', { class: 'slot ' + (st === 'open' ? '' : st), type: 'button' });
+      const note = { open: 'Open', taken: 'Taken', league: 'League match', mine: 'Yours' }[st];
+      b.append(document.createTextNode(hh(h)), el('small', {}, note));
+      if (st !== 'open') b.disabled = true;
+      else {
+        b.setAttribute('aria-pressed', state.hour === h);
+        b.addEventListener('click', () => { state.hour = state.hour === h ? null : h; draw(); });
+      }
+      slotsEl.appendChild(b);
+    }
+    const s = sites[state.site];
+    if (state.hour == null) {
+      if (!text.dataset.done) text.textContent = 'Choose an open hour to reserve it.';
+      reserve.disabled = true; reserve.textContent = 'Reserve';
+    } else {
+      delete text.dataset.done;
+      text.textContent = `${s.name}, ${fmtLong.format(days[state.day])}, ${hh(state.hour)} to ${hh(state.hour + 1)}.`;
+      reserve.disabled = false; reserve.textContent = `Reserve ${hh(state.hour)}`;
+    }
+  }
+  reserve.addEventListener('click', () => {
+    if (state.hour == null) return;
+    const s = sites[state.site], h = state.hour;
+    state.mine.add(key(h)); state.hour = null;
+    text.dataset.done = '1';
+    text.textContent = `Reserved: ${s.name}, ${fmtLong.format(days[state.day])}, ${hh(h)} to ${hh(h + 1)}. This is a preview, so nothing was actually booked.`;
+    draw();
+  });
+  draw();
+})();
+
+/* ───── League: fixtures, standings, knockout ───── */
+(function league() {
+  const names = ['Kensington Rovers', 'Norris Square United', 'Las Estrellas', 'Front Street Athletic', 'Lehigh Avenue FC', 'Fishtown Old Boys'];
+  const slots = ['Sat 17:00, pitch 1', 'Sat 18:00, pitch 1', 'Sat 19:00, pitch 1'];
+  const tbody = $('#table'), fx = $('#fixtures'), play = $('#play'), title = $('#md-title'), note = $('#md-note'), champ = $('#champ');
+  let seed = 7; const srand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const goals = r => { const x = r(); return x < .22 ? 0 : x < .52 ? 1 : x < .78 ? 2 : x < .92 ? 3 : 4; };
+
+  // round robin by the circle method
+  const rounds = []; { const ids = names.map((_, i) => i);
+    for (let r = 0; r < 5; r++) { rounds.push([0, 1, 2].map(i => r % 2 ? [ids[5 - i], ids[i]] : [ids[i], ids[5 - i]])); ids.splice(1, 0, ids.pop()); } }
+
+  let teams, md, stage, ko;
+  const blank = () => names.map((name, id) => ({ id, name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0 }));
+  const apply = (a, b, ga, gb) => {
+    const A = teams[a], B = teams[b]; A.p++; B.p++; A.gf += ga; A.ga += gb; B.gf += gb; B.ga += ga;
+    if (ga > gb) { A.w++; B.l++; A.pts += 3; } else if (gb > ga) { B.w++; A.l++; B.pts += 3; } else { A.d++; B.d++; A.pts++; B.pts++; }
+  };
+  const sorted = () => [...teams].sort((x, y) => y.pts - x.pts || (y.gf - y.ga) - (x.gf - x.ga) || y.gf - x.gf || x.id - y.id);
+
+  function reset() {
+    seed = 7; teams = blank(); md = 0; stage = 'league'; ko = { sf: [null, null], final: null };
+    for (; md < 2; md++) rounds[md].forEach(([a, b]) => apply(a, b, goals(srand), goals(srand)));
+    champ.textContent = '';
+    drawTable(false); drawFixtures(); drawBracket(); label();
+  }
+
+  function drawTable(animate) {
+    const before = new Map([...tbody.children].map(tr => [tr.dataset.id, tr.getBoundingClientRect().top]));
+    tbody.textContent = '';
+    sorted().forEach((t, i) => {
+      const tr = el('tr'); tr.dataset.id = t.id; if (i === 3) tr.className = 'cut';
+      const gd = t.gf - t.ga;
+      [i + 1, t.name, t.p, t.w, t.d, t.l, (gd > 0 ? '+' : '') + gd, t.pts].forEach(v => tr.appendChild(el('td', {}, v)));
+      tbody.appendChild(tr);
+    });
+    if (!animate || still) return;
+    [...tbody.children].forEach(tr => {
+      const was = before.get(tr.dataset.id); if (was == null) return;
+      const dy = was - tr.getBoundingClientRect().top; if (!dy) return;
+      tr.classList.add('moved');
+      tr.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 650, easing: 'cubic-bezier(.3,1.3,.5,1)' }).onfinish = () => tr.classList.remove('moved');
+    });
+  }
+  const row = (home, away, score, when, winner) => {
+    const li = el('li');
+    li.append(el('span', { class: 'home' + (winner === 0 ? ' win' : '') }, home), el('span', { class: 'score' }, score), el('span', { class: 'away' + (winner === 1 ? ' win' : '') }, away), el('span', { class: 'when' }, when));
+    return li;
+  };
+  function drawFixtures(results) {
+    fx.textContent = '';
+    if (stage === 'league' || results) {
+      const r = rounds[results ? md - 1 : md];
+      r.forEach(([a, b], i) => {
+        const s = results ? results[i] : null;
+        fx.appendChild(row(names[a], names[b], s ? `${s[0]}–${s[1]}` : 'v', 'Hissey Playground, ' + slots[i], s ? (s[0] > s[1] ? 0 : s[1] > s[0] ? 1 : -1) : -1));
+      });
+    }
+  }
+  const tie = (node, a, b, res) => {
+    node.textContent = '';
+    [[a, 0], [b, 1]].forEach(([t, i]) => {
+      const d = el('div', { class: t.tbd ? 'tbd' : (res && res[i] > res[1 - i] ? 'w' : '') });
+      d.append(el('span', {}, t.name), el('span', {}, res ? res[i] : ''));
+      node.appendChild(d);
+    });
+  };
+  function drawBracket() {
+    const s = sorted(), done = md >= 5;
+    const seedName = i => done ? s[i] : { name: `${['1st', '2nd', '3rd', '4th'][i]}: ${s[i].name}`, tbd: true };
+    tie($('#sf1'), seedName(0), seedName(3), ko.sf[0] && ko.sf[0].score);
+    tie($('#sf2'), seedName(1), seedName(2), ko.sf[1] && ko.sf[1].score);
+    const f = i => ko.sf[i] ? ko.sf[i].winner : { name: `Winner of semi-final ${i + 1}`, tbd: true };
+    tie($('#final'), f(0), f(1), ko.final && ko.final.score);
+  }
+  function label() {
+    if (stage === 'league') { title.textContent = `Matchday ${md + 1}`; play.textContent = `Play matchday ${md + 1}`; note.textContent = 'Results here are made up on the spot.'; }
+    else if (stage === 'semis') { play.textContent = 'Play the semi-finals'; note.textContent = 'The league is finished. The top four are through.'; }
+    else if (stage === 'final') { play.textContent = 'Play the final'; note.textContent = 'Sunday 16:00, Hissey Playground, pitch 1.'; }
+    else { play.textContent = 'Start a new season'; note.textContent = ''; }
+  }
+  const knock = (a, b) => { let x = goals(Math.random), y = goals(Math.random); if (x === y) Math.random() < .5 ? x++ : y++; return { score: [x, y], winner: x > y ? a : b }; };
+
+  play.addEventListener('click', () => {
+    if (stage === 'league') {
+      const res = rounds[md].map(([a, b]) => { const s = [goals(Math.random), goals(Math.random)]; apply(a, b, s[0], s[1]); return s; });
+      md++; title.textContent = `Matchday ${md} results`;
+      drawFixtures(res); drawTable(true);
+      if (md >= 5) stage = 'semis';
+      drawBracket(); label(); if (stage === 'league') title.textContent = `Matchday ${md} results`;
+    } else if (stage === 'semis') {
+      const s = sorted(); ko.sf = [knock(s[0], s[3]), knock(s[1], s[2])];
+      title.textContent = 'Semi-finals'; fx.textContent = '';
+      [[s[0], s[3]], [s[1], s[2]]].forEach(([a, b], i) => fx.appendChild(row(a.name, b.name, ko.sf[i].score.join('–'), 'Hissey Playground, ' + slots[i], ko.sf[i].winner === a ? 0 : 1)));
+      stage = 'final'; drawBracket(); label();
+    } else if (stage === 'final') {
+      const a = ko.sf[0].winner, b = ko.sf[1].winner; ko.final = knock(a, b);
+      title.textContent = 'Final'; fx.textContent = '';
+      fx.appendChild(row(a.name, b.name, ko.final.score.join('–'), 'Hissey Playground, Sun 16:00, pitch 1', ko.final.winner === a ? 0 : 1));
+      champ.textContent = `${ko.final.winner.name} are champions.`;
+      stage = 'over'; drawBracket(); label();
+    } else reset();
+  });
+  reset();
+})();
+
+/* ───── Live: every dot is a player ───── */
+(function live() {
+  const games = [
+    { place: 'Philadelphia', country: 'USA', kind: 'League match', max: 10, n: 10 },
+    { place: 'Villa Nueva', country: 'Guatemala', kind: 'Booked game', max: 14, n: 11 },
+    { place: 'Recife', country: 'Brazil', kind: 'League match', max: 10, n: 10 },
+    { place: 'São Paulo', country: 'Brazil', kind: 'Booked game', max: 14, n: 9 },
+    { place: 'Mexico City', country: 'Mexico', kind: 'Booked game', max: 10, n: 7 },
+    { place: 'Oaxaca', country: 'Mexico', kind: 'League match', max: 10, n: 10 },
+    { place: 'Buenos Aires', country: 'Argentina', kind: 'Booked game', max: 14, n: 12 },
+    { place: 'Cartagena', country: 'Colombia', kind: 'Booked game', max: 10, n: 6 },
+    { place: 'Houston', country: 'USA', kind: 'League match', max: 14, n: 14 },
+  ];
+  // formation spots for one side, in a 100 x 120 half; mirrored for the other team
+  const spots = [[12, 60], [38, 28], [38, 92], [66, 60], [80, 22], [80, 98], [54, 44]];
+  const list = $('#games');
+  const xy = (team, i) => { const [x, y] = spots[i]; return team ? [208 - x * .98, 126 - y] : [12 + x * .98, y + 6]; };
+  const dot = (g, team, i) => { const [cx, cy] = xy(team, i); return sv('circle', { cx, cy, r: 6.5, class: team ? 'b' : 'a', style: `--d:${-((g.idx * 7 + i * 3 + team) % 10) / 2}s` }); };
+
+  games.forEach((g, idx) => {
+    g.idx = idx; g.side = [Math.ceil(g.n / 2), Math.floor(g.n / 2)];
+    const li = el('li');
+    const head = el('div', { class: 'g-head' });
+    const where = el('div'); where.append(el('b', {}, `${g.place}, ${g.country}`), el('small', {}, `${g.kind}, ${g.max / 2}-a-side`));
+    g.count = el('span', { class: 'g-count', 'aria-label': `${g.n} players` }, g.n);
+    head.append(where, g.count);
+    const svg = sv('svg', { class: 'mini', viewBox: '0 0 220 132', 'aria-hidden': 'true' });
+    svg.innerHTML = '<path class="ln" d="M4 5 C70 3 150 7 216 4 C218 45 214 90 217 128 C150 130 70 126 5 129 C3 90 7 45 4 5Z"/><path class="ln" d="M110 5 C112 45 108 90 110 128"/><path class="ln" d="M110 52 C122 53 123 79 110 80 C98 79 97 53 110 52Z"/>';
+    g.layers = [sv('g'), sv('g')];
+    g.layers.forEach((layer, t) => { for (let i = 0; i < g.side[t]; i++) layer.appendChild(dot(g, t, i)); svg.appendChild(layer); });
+    li.append(head, svg); list.appendChild(li);
+  });
+
+  const out = { players: $('#n-players'), teams: $('#n-teams'), games: $('#n-games'), countries: $('#n-countries') };
+  const set = (node, v) => { if (node.textContent === String(v)) return; node.textContent = v; node.classList.remove('tick'); void node.offsetWidth; node.classList.add('tick'); };
+  const totals = () => {
+    set(out.players, games.reduce((s, g) => s + g.n, 0));
+    set(out.teams, games.length * 2); set(out.games, games.length);
+    set(out.countries, new Set(games.map(g => g.country)).size);
+  };
+  totals();
+
+  function change() {
+    const g = pickOne(games);
+    const join = g.n < g.max && (g.n <= 6 || Math.random() < .55);
+    if (!join && g.n <= 6) return;
+    const t = join ? (g.side[0] <= g.side[1] ? 0 : 1) : (g.side[0] >= g.side[1] ? 0 : 1);
+    if (join) { g.layers[t].appendChild(dot(g, t, g.side[t])); g.side[t]++; g.n++; }
+    else { const c = g.layers[t].lastElementChild; c.classList.add('leaving'); setTimeout(() => c.remove(), 360); g.side[t]--; g.n--; }
+    g.count.textContent = g.n; g.count.setAttribute('aria-label', `${g.n} players`);
+    totals();
+  }
+  let timer = null;
+  new IntersectionObserver(e => {
+    if (e[0].isIntersecting && !timer) timer = setInterval(change, 1700);
+    else if (!e[0].isIntersecting && timer) { clearInterval(timer); timer = null; }
+  }, { threshold: .1 }).observe($('#live'));
+})();
+})();
+</script>
+</body>
+</html>
