@@ -1,0 +1,23 @@
+/* Not page-scoped: the id keeps it above each page's own scoped rules. */
+#lf-switch {
+  position: sticky; top: 0; z-index: 1000;
+  display: flex; align-items: center; gap: 16px;
+  margin: 0; padding: 0 max(16px, env(safe-area-inset-left, 0px));
+  background: #1D1D1B; color: #F5F4EF;
+  font: 500 14px/1 "Red Hat Text", "Helvetica Neue", Arial, sans-serif;
+  border-bottom: 1px solid rgba(245, 244, 239, .18);
+}
+#lf-switch .lf-label { flex: none; opacity: .6; }
+#lf-switch ul {
+  display: flex; gap: 4px; margin: 0; padding: 0; list-style: none;
+  overflow-x: auto; scrollbar-width: none;
+}
+#lf-switch li { margin: 0; flex: none; }
+#lf-switch a {
+  display: block; padding: 11px 10px; border: 0; border-bottom: 3px solid transparent;
+  color: #F5F4EF; text-decoration: none; white-space: nowrap; background: none;
+}
+#lf-switch a:hover { border-bottom-color: #88C59B; }
+#lf-switch a.active { border-bottom-color: #ED1C24; font-weight: 700; }
+#lf-switch a:focus-visible { outline: 3px solid #3CB1EA; outline-offset: -3px; }
+@media (max-width: 560px) { #lf-switch .lf-label { display: none; } }

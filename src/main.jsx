@@ -1,6 +1,7 @@
 import { StrictMode, Suspense, lazy, useEffect, useLayoutEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
+import Switcher from './shared/Switcher.jsx';
 
 // Each page is its own chunk, loaded when its route is first visited.
 const Chooser = lazy(() => import('./chooser/App.jsx'));
@@ -22,6 +23,7 @@ function Page({ name, title, children }) {
   useEffect(() => {
     const id = decodeURIComponent(window.location.hash.slice(1));
     if (id) document.getElementById(id)?.scrollIntoView({ behavior: 'instant' });
+    else window.scrollTo({ top: 0, behavior: 'instant' }); // start each page at the top
   }, [name]);
   return children;
 }
@@ -42,6 +44,7 @@ function Moved({ to }) {
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter basename="/lovefutbal">
+      <Switcher />
       <Suspense fallback={null}>
         <Routes>
           {ROUTES.map(({ path, name, title, Component, old }) => [
