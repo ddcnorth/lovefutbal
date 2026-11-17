@@ -1,3 +1,4 @@
+import './style.css';
 import { useEffect, useMemo, useState } from 'react';
 import useFlip from '../shared/useFlip.js';
 import Logo from '../shared/Logo.jsx';

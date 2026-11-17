@@ -1,3 +1,4 @@
+import './style.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import logoUrl from '../assets/logo-source-reversed.svg';
 import useFlip from '../shared/useFlip.js';
@@ -559,10 +560,6 @@ function Live() {
 }
 
 export default function App() {
-  // Jump to a #section after React has rendered it (e.g. links to site/#live).
-  useEffect(() => {
-    if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
-  }, []);
   return (
     <>
       <header className="top">

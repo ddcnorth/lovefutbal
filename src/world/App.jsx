@@ -1,3 +1,4 @@
+import './style.css';
 import { useLayoutEffect, useRef, useState, useEffect } from 'react';
 import Logo from '../shared/Logo.jsx';
 import Num from '../shared/Num.jsx';

@@ -1,4 +1,6 @@
+import './style.css';
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router';
 import Logo from '../shared/Logo.jsx';
 import Flag from '../shared/Flag.jsx';
 import { BoardSketch, PitchSketch, SiteSketch, WorldSketch } from './Sketches.jsx';
@@ -6,19 +8,19 @@ import { BoardSketch, PitchSketch, SiteSketch, WorldSketch } from './Sketches.js
 const KEY = 'lf-design-pick';
 const OPTIONS = [
   {
-    id: 'pitch', title: 'The pitch', kind: 'Front page, light', href: 'pitch.html', open: 'Open the pitch front page', Sketch: PitchSketch,
+    id: 'pitch', title: 'The pitch', kind: 'Front page, light', to: '/pitch', open: 'Open the pitch front page', Sketch: PitchSketch,
     points: ['A hand-drawn pitch with a game playing on it', 'Live figures, booking timetable and league on one page', 'Record results to move the table and fill the knockout'],
   },
   {
-    id: 'world', title: 'The world clock', kind: 'Front page, green', href: 'world-clock.html', open: 'Open the world clock front page', Sketch: WorldSketch,
+    id: 'world', title: 'The world clock', kind: 'Front page, green', to: '/world-clock', open: 'Open the world clock front page', Sketch: WorldSketch,
     points: ['Every site sits on a 24-hour band at its real local time', 'Drag the clock to watch games follow the evening', 'The headline counts players, teams, pitches and countries'],
   },
   {
-    id: 'board', title: 'The live board', kind: 'Public display, dark', href: 'live-board.html', open: 'Open the live board', Sketch: BoardSketch,
+    id: 'board', title: 'The live board', kind: 'Public display, dark', to: '/live-board', open: 'Open the live board', Sketch: BoardSketch,
     points: ['World totals for games, teams and players', 'Each game is its own small pitch with a headcount', 'Made for a screen at a site or an event'],
   },
   {
-    id: 'local', title: 'The full site', kind: 'Full one-page site, dark', href: 'site/#live', open: 'Open the full one-page site', Sketch: SiteSketch,
+    id: 'local', title: 'The full site', kind: 'Full one-page site, dark', to: { pathname: '/site', hash: '#live' }, open: 'Open the full one-page site', Sketch: SiteSketch,
     points: ['"Right now 89 people on 18 teams" as one live sentence', 'Nine games drawn as dark pitches with white and blue dots', 'Booking calendar and a league you play by matchday'],
   },
 ];
@@ -59,16 +61,16 @@ export default function App() {
       <p className="lead">Four takes on the love.fútbol front page and live display. Open each one, choose your favourite and add any notes. All of them are prototypes with sample data.</p>
 
       <form className="opts" onSubmit={(e) => e.preventDefault()}>
-        {OPTIONS.map(({ id, title, kind, href, open, Sketch, points }) => (
+        {OPTIONS.map(({ id, title, kind, to, open, Sketch, points }) => (
           <article className="opt" key={id}>
-            <a className="thumb" href={href} target="_blank" rel="noopener" aria-label={open}><Sketch /></a>
+            <Link className="thumb" to={to} target="_blank" rel="noopener" aria-label={open}><Sketch /></Link>
             <div className="body">
               <h2>{title}</h2>
               <p className="kind">{kind}</p>
               <ul>{points.map((p) => <li key={p}>{p}</li>)}</ul>
             </div>
             <div className="acts">
-              <a className="btn" href={href} target="_blank" rel="noopener">Open</a>
+              <Link className="btn" to={to} target="_blank" rel="noopener">Open</Link>
               <label className="pick">
                 <input type="radio" name="pick" value={title} checked={st.pick === title} onChange={() => setSt({ ...st, pick: title })} />
                 Choose this one

@@ -1,16 +1,20 @@
 # love.fútbol front page prototypes
 
-Design prototypes for a love.fútbol web application: pitch booking, leagues and live activity stats. Built with Vite and React.
+Design prototypes for a love.fútbol web application: pitch booking, leagues and live activity stats. One React app (Vite + React Router).
 
-| Page | Source | What it is |
+| Route | Source | What it is |
 |---|---|---|
-| `index.html` | `src/chooser/` | Chooser for the options below |
-| `pitch.html` | `src/pitch/` | Front page with a live hand-drawn pitch, booking timetable and league |
-| `world-clock.html` | `src/world/` | Front page built on a 24-hour band of site local times |
-| `live-board.html` | `src/board/` | Public live display |
-| `site/index.html` | `src/site/` | Full one-page site, with fonts and logo from `src/assets/` |
+| `/lovefutbal/` | `src/chooser/` | Chooser for the options below |
+| `/lovefutbal/pitch` | `src/pitch/` | Front page with a live hand-drawn pitch, booking timetable and league |
+| `/lovefutbal/world-clock` | `src/world/` | Front page built on a 24-hour band of site local times |
+| `/lovefutbal/live-board` | `src/board/` | Public live display |
+| `/lovefutbal/site` | `src/site/` | Full one-page site, with fonts and logo from `src/assets/` |
+
+`src/main.jsx` holds the routes. Each page loads as its own chunk the first time it is visited. The old `.html` addresses (`pitch.html`, `site/index.html` and so on) redirect to the new routes.
 
 Shared pieces live in `src/shared/`: the logo, the simulated match engine and pitch drawing, rolling numbers, and the table-reorder animation.
+
+Each page keeps its own look. `scope-pages.js` is a small PostCSS step that confines `src/<page>/style.css` to `body.page-<page>` and gives its keyframes unique names, and the router sets that body class for the page on screen.
 
 ## Run it
 
@@ -19,7 +23,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173/lovefutbal/. `npm run build` writes the static site to `dist/`.
+Open http://localhost:5173/lovefutbal/. `npm run build` writes the static site to `dist/`, with a copy of `index.html` as `404.html` so GitHub Pages serves the app for any route.
 
 ## Publishing
 
