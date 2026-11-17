@@ -23,7 +23,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173/lovefutbal/. `npm run build` writes the static site to `dist/`, with a copy of `index.html` as `404.html` so GitHub Pages serves the app for any route.
+Open http://localhost:5173/lovefutbal/. `npm run build` writes the static site to `dist/`, and `route-pages.js` copies `index.html` to each route (and to the old `.html` addresses and `404.html`) so GitHub Pages answers every address with the app.
 
 ## Publishing
 
