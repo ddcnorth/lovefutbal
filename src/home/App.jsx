@@ -99,7 +99,7 @@ export default function App() {
       <footer className="foot">
         <div className="wrap">
           <span className="logo"><Logo /></span>
-          <p>Design prototype, not an official love.fútbol site. Pitch names and places come from love.fútbol's public project list. Games, teams, hours and numbers are samples, and nothing here makes a real booking.</p>
+          <p>This is a sample website made for the development of love.fútbol. Games, teams, hours and numbers are examples.</p>
         </div>
       </footer>
     </div>

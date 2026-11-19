@@ -8,7 +8,7 @@ import Figs, { Scoreline, Totals } from './Figs.jsx';
 export default function Home({ match, game, world, go }) {
   const snap = useMatch(match);
   return (
-    <>
+    <div className="home">
       <section className="hero">
         <div className="hero-copy">
           <h1>
@@ -47,6 +47,6 @@ export default function Home({ match, game, world, go }) {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
