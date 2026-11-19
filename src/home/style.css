@@ -84,10 +84,10 @@ main { flex: 1; }
 .pitch { display: block; width: 100%; height: auto; overflow: visible; margin-top: -3.7%; }
 .turf { fill: var(--green); }
 /* The lines are chalked in when a pitch first appears: touchline, halfway line, centre circle, then the boxes and goals. */
-.lines * { fill: none; stroke: var(--paper); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1 1.1; animation: draw 1.1s ease-out both; }
-.lines :nth-child(2) { animation-delay: .5s; }
-.lines :nth-child(3) { animation-delay: .8s; }
-.lines :nth-child(n+4) { animation-delay: 1s; }
+.lines * { fill: none; stroke: var(--paper); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1 1.1; animation: draw .45s ease-out both; }
+.lines :nth-child(2) { animation-delay: .15s; }
+.lines :nth-child(3) { animation-delay: .25s; }
+.lines :nth-child(n+4) { animation-delay: .35s; }
 /* The goals stand outside the turf, where chalk would not show on the paper, so they are drawn in charcoal. */
 .lines :nth-child(n+6) { stroke: var(--ink); }
 /* Starting a little past the end of the line keeps its round cap from showing as a dot before the line is drawn. */
@@ -225,6 +225,7 @@ tbody tr.cut td { border-bottom: 3px dashed var(--clay); }
 .cut-note::before { content: ""; width: 28px; border-top: 3px dashed var(--clay); }
 
 .next { margin: 10px 0 16px; }
+.block .cta { margin-top: 0; }
 .next b { display: block; font-weight: 700; }
 .next span { display: block; font-size: .9375rem; color: var(--soft); }
 .results { list-style: none; margin: 18px 0 0; padding: 0; font-size: .9375rem; color: var(--soft); }
@@ -249,15 +250,25 @@ tbody tr.cut td { border-bottom: 3px dashed var(--clay); }
 .live-head .flagmark { height: .6em; margin-right: .14em; vertical-align: .06em; }
 .clock { font: 400 clamp(2.5rem, 5vw, 4rem)/.9 var(--display); font-variant-numeric: tabular-nums; }
 .live .totals { margin-top: 14px; }
-.games { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: clamp(32px, 4vw, 52px) clamp(20px, 2.8vw, 40px); list-style: none; margin: clamp(36px, 5vw, 64px) 0 0; padding: 0; }
-.game { display: grid; gap: 12px; align-content: start; border-top: var(--line) solid var(--ink); padding-top: 12px; }
+/* One game at a time: each side's goals written on its half of the pitch, the two names beneath, then arrows to the other games. */
+.game { display: grid; gap: clamp(12px, 2vw, 20px); max-width: 980px; margin: clamp(36px, 5vw, 64px) auto 0; border-top: var(--line) solid var(--ink); padding-top: 12px; }
 .g-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-.g-head h3 { font-size: 2.25rem; line-height: .9; }
+.g-head h3 { font-size: clamp(2.25rem, 4vw, 3rem); line-height: .9; }
 .g-head p { font-size: .875rem; color: var(--soft); margin-top: 3px; }
 .count { flex: none; text-align: right; }
-.count b { display: block; font: 400 4rem/.78 var(--display); font-variant-numeric: tabular-nums; }
+.count b { display: block; font: 400 4rem/.78 var(--display); }
 .count span { display: block; margin-top: 4px; font-size: .8125rem; color: var(--soft); }
-.game .scoreline { font-size: 1.5rem; }
+.duel { position: relative; container-type: inline-size; }
+/* The turf's halves are centred a little over a quarter of the way in from each edge of the drawing. */
+.goals { position: absolute; top: 50%; translate: -50% -50%; font: 400 22cqw/.8 var(--display); color: var(--paper); pointer-events: none; }
+.goals.a { left: 27%; }
+.goals.b { left: 73%; }
+.sides { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: .1em .5em; font: 400 clamp(2.25rem, 6.4vw, 4.75rem)/.9 var(--display); text-align: center; margin-top: clamp(4px, 1vw, 12px); }
+.sides > [aria-hidden] { color: var(--green); }
+.pager { display: flex; align-items: center; justify-content: center; gap: clamp(16px, 3vw, 28px); margin-top: clamp(4px, 1vw, 10px); }
+.arrow { width: 56px; min-height: 48px; padding: 0; }
+.arrow svg { width: 24px; height: 16px; }
+.pager span { color: var(--soft); }
 
 /* ───────── Foot ───────── */
 .foot { background: var(--green); }
@@ -270,8 +281,8 @@ tbody tr.cut td { border-bottom: 3px dashed var(--clay); }
   (0–0 looks like 8–8), so figures in the display face use its slashed zero instead.
   Kept down here because the `font` shorthand above would reset it.
 */
-h1, h2, h3, .display, .tabs a, .more, .scoreline, .day strong, td:first-child, .champ { font-variant-numeric: slashed-zero; }
-.fig b, .count b, .clock { font-variant-numeric: tabular-nums slashed-zero; }
+h1, h2, h3, .display, .tabs a, .more, .scoreline, .sides, .day strong, td:first-child, .champ { font-variant-numeric: slashed-zero; }
+.fig b, .count b, .clock, .goals { font-variant-numeric: tabular-nums slashed-zero; }
 
 /* Book: the heading and its text share one left edge with the lists below. */
 .book .head { grid-template-columns: minmax(0, 1fr); gap: clamp(12px, 1.6vw, 20px); }

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import useFlip from '../shared/useFlip.js';
+import { still, useInterval } from '../shared/util.js';
 import Flag from '../shared/Flag.jsx';
 import { TEAMS, SF_PAIRS, newSeason, playNext, table, winner } from '../pitch/league.js';
 import { GAMES } from './data.js';
@@ -58,7 +59,10 @@ export default function Leagues() {
   );
 
   const q = L.queue[0];
-  let next = <><b>Season finished</b><span>Reset to draw up a new set of fixtures.</span></>;
+  // A result comes in every second on its own. The finished table stays up a little longer before a new season starts.
+  const [playing, setPlaying] = useState(!still);
+  useInterval(() => setL(playNext(L)), playing ? (q ? 1000 : 4000) : null);
+  let next = <><b>Season finished</b><span>A new set of fixtures is drawn up next.</span></>;
   if (q) {
     let a; let b;
     if (q.type === 'league') { a = q.a; b = q.b; }
@@ -74,7 +78,7 @@ export default function Leagues() {
       <div className="wrap">
         <header className="head">
           <h2 className="display h2">Join a league</h2>
-          <p className="lede">Register your team. Fixtures are drawn up and placed on the pitches you already book. Record a result and the table and the knockout bracket update on their own. Try it with the league below.</p>
+          <p className="lede">Register your team. Fixtures are drawn up and placed on the pitches you already book. As results come in, the table and the knockout bracket update on their own. The league below plays itself, one result a second.</p>
         </header>
         <div className="board">
           <div className="block">
@@ -97,7 +101,10 @@ export default function Leagues() {
             <div className="block">
               <h3>Next up</h3>
               <p className="next" aria-live="polite">{next}</p>
-              <button className="btn" onClick={() => setL(playNext(L))}>{q ? 'Record the next result' : 'Reset the season'}</button>
+              <div className="cta">
+                <button className="btn" aria-pressed={!playing} onClick={() => setPlaying(!playing)}>{playing ? 'Pause' : 'Resume'}</button>
+                {!playing && <button className="btn btn-line" onClick={() => setL(playNext(L))}>{q ? 'Record the next result' : 'Start a new season'}</button>}
+              </div>
               {recent.length > 0 && <ul className="results">{recent.map((x) => <li key={x}>{x}</li>)}</ul>}
             </div>
             <div className="swatch">
