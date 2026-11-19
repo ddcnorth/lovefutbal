@@ -77,13 +77,13 @@ main { flex: 1; }
 .logo svg { width: 100%; height: auto; }
 /*
   The red corner flag stands beside whichever tab you are on. Every tab carries one, but only the
-  current tab's shows, and it sits in the space before the tab's name rather than pushing it along,
-  so the tabs never move when you switch.
+  current tab's shows, and it sits in the space just after the tab's name rather than pushing along
+  the tabs after it, so the tabs never move when you switch.
 */
-.tabs { --flag: .82em; display: flex; gap: max(var(--flag), clamp(16px, 3vw, 40px)); padding-left: var(--flag); font: 400 clamp(1.75rem, 2.6vw, 2.25rem)/1 var(--display); }
+.tabs { --flag-w: .82em; display: flex; gap: max(var(--flag-w), clamp(16px, 3vw, 40px)); padding-right: var(--flag-w); font: 400 clamp(1.75rem, 2.6vw, 2.25rem)/1 var(--display); }
 .tabs a { position: relative; flex: none; padding-block: 6px 2px; white-space: nowrap; }
 .tabs span { padding-inline: 1px; }
-.tabs .flagmark { position: absolute; right: 100%; top: 50%; margin: 0 .16em 0 0; translate: 0 -46%; opacity: 0; scale: .6; transform-origin: 10% 95%; transition: opacity .2s ease, scale .25s ease; }
+.tabs .flagmark { position: absolute; left: 100%; top: 50%; margin: 0 0 0 .16em; translate: 0 -46%; opacity: 0; scale: .6; transform-origin: 10% 95%; transition: opacity .2s ease, scale .25s ease; }
 .tabs a[aria-current] .flagmark { opacity: 1; scale: 1; }
 
 /* ───────── The pitch drawing ───────── */
@@ -257,10 +257,9 @@ main { flex: 1; }
 .pick p { max-width: 30em; }
 
 /* ───────── Leagues ───────── */
-/* A compact heading here: the title and its text sit together, close above the table. */
+/* A compact heading here: just the title, close above the table. */
 .leagues.panel { padding-top: clamp(20px, 3vw, 40px); }
 .leagues .head { grid-template-columns: minmax(0, 1fr); gap: 8px; margin-bottom: clamp(18px, 2.4vw, 28px); }
-.leagues .head .lede { max-width: 46em; }
 .board { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(28px, 4vw, 64px); align-items: start; }
 .board h3 { font-size: 2.5rem; line-height: .95; }
 .block { border-top: var(--line) solid var(--ink); padding-top: 14px; min-width: 0; }
@@ -328,9 +327,10 @@ tbody tr.cut td { border-bottom: 3px dashed var(--clay); }
 
 /* ───────── Foot ───────── */
 .foot { background: var(--green); }
-.foot .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 48px; padding-block: 22px 26px; }
-.foot .logo { width: 112px; color: var(--white); }
-.foot p { max-width: 40em; font-size: .9375rem; }
+/* One slim foot on every tab: a small logo and the note on one line beside it. */
+.foot .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 48px; padding-block: 12px 14px; }
+.foot .logo { width: 76px; color: var(--white); }
+.foot p { flex: 1; font-size: .875rem; }
 
 /*
   Bahianita's plain zero has a bar right across it and reads as an 8 at score size
@@ -366,9 +366,48 @@ h1, h2, h3, .display, .tabs a, .more, .sides, .day strong, td:first-child, .cham
   .home .fig span { margin-top: clamp(2px, .8vh, 10px); }
   .home .now-foot { padding-block: clamp(6px, 1.2vh, 16px) clamp(8px, 1.6vh, 72px); }
   .home .more { font-size: clamp(1.75rem, 3.6vh, 2.25rem); }
-  .shell:has(.home) .foot .wrap { padding-block: 12px 14px; }
-  .shell:has(.home) .foot .logo { width: 76px; }
-  .shell:has(.home) .foot p { max-width: none; flex: 1; font-size: .875rem; }
+
+  /*
+    The Leagues tab fits one view as well: the title, the table with the latest results, and beside
+    it what's next and the knockout. Rows, gaps and type follow the window's height, and any height
+    to spare goes above and below in equal parts.
+  */
+  .leagues.panel { display: flex; flex-direction: column; justify-content: center; min-height: calc(100svh - 41px - var(--bar-h, 96px) - var(--foot-h, 70px)); padding-block: clamp(12px, 2.4vh, 40px); }
+  .leagues .head { margin-bottom: clamp(10px, 1.8vh, 24px); }
+  .leagues .head .h2 { font-size: clamp(2.75rem, min(6vw, 8vh), 6rem); }
+  .leagues .board h3 { font-size: clamp(1.75rem, 3.8vh, 2.5rem); }
+  .leagues .block { padding-top: clamp(8px, 1.4vh, 14px); }
+  .leagues th { padding-block: clamp(.15rem, .5vh, .35rem); }
+  .leagues td { padding-block: clamp(.25rem, .7vh, .6rem); }
+  .leagues td:first-child { font-size: clamp(1.375rem, 3vh, 1.75rem); }
+  .leagues .cut-note { margin-top: clamp(.4rem, 1vh, .8rem); }
+  .leagues .sub { margin-top: clamp(10px, 1.8vh, 22px); }
+  .leagues .recent li { padding-block: clamp(3px, .6vh, 6px); }
+  .leagues .aside { gap: clamp(14px, 2.2vh, 44px); }
+  .leagues .next { margin: clamp(4px, .8vh, 10px) 0 clamp(8px, 1.4vh, 16px); }
+  .leagues .swatch { padding: clamp(12px, 1.8vh, 26px) clamp(16px, 2.2vw, 26px); }
+  .leagues .bracket { margin-top: clamp(6px, 1vh, 12px); }
+  .leagues .b-col { gap: clamp(8px, 1.4vh, 18px); }
+  .leagues .tie div { min-height: 0; padding-block: clamp(.2rem, .7vh, .45rem); }
+  .leagues .champ { margin-top: clamp(.4rem, 1vh, 1rem); font-size: clamp(1.5rem, 3.2vh, 2.25rem); min-height: clamp(1.5rem, 3.2vh, 2.25rem); }
+}
+/*
+  In a short window (a laptop with its browser bars) the latest results give way, since the table
+  already counts them, and the knockout and the button tighten, so the tab still fits one view.
+*/
+@media (min-width: 901px) and (max-height: 760px) {
+  .leagues .sub, .leagues .recent { display: none; }
+  .leagues.panel { padding-block: 10px; }
+  .leagues .head .h2 { font-size: clamp(2.5rem, 7.4vh, 4rem); }
+  .leagues td { padding-block: clamp(.15rem, .6vh, .4rem); }
+  .leagues .block .btn { min-height: 40px; }
+  /* What's next and its button share a row. */
+  .leagues .aside .block { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 16px; }
+  .leagues .aside .block h3 { grid-column: 1 / -1; }
+  .leagues .aside .block .next { margin-bottom: 0; }
+  .leagues .next span { font-size: .875rem; }
+  .leagues .tie { font-size: .875rem; }
+  .leagues .tie small { padding-block: .1rem; font-size: .75rem; }
 }
 @media (max-width: 900px) {
   .hero { grid-template-columns: var(--pad) minmax(0, 1fr) var(--pad); min-height: 0; }
@@ -391,7 +430,7 @@ h1, h2, h3, .display, .tabs a, .more, .sides, .day strong, td:first-child, .cham
   .continents button { min-height: 40px; padding: .45rem .7rem .35rem; font-size: 1.25rem; }
 
   /* The tabs, with room for the flag, shrink with the screen so the last one is never cut off. */
-  .tabs { font-size: min(1.75rem, 6.4vw); gap: max(var(--flag), 12px); }
+  .tabs { font-size: min(1.75rem, 6.4vw); gap: max(var(--flag-w), 12px); }
 
   /* No foot on a phone, on any tab. */
   .foot { display: none; }

@@ -78,7 +78,6 @@ export default function Leagues() {
       <div className="wrap">
         <header className="head">
           <h2 className="display h2">Join a league</h2>
-          <p className="lede">Register your team. Fixtures go on the pitches you already book, and the table and bracket update with every result. The league below plays itself.</p>
         </header>
         <div className="board">
           <div className="block">

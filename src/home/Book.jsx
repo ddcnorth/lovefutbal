@@ -158,7 +158,7 @@ export default function Book() {
       <div className="wrap">
         <header className="head">
           <h2 className="display h2">Reserve an hour on the pitch</h2>
-          <p className="lede">Find your pitch in the list, then pick a day. Green hours are open. League matches already have their place on the same calendar, so nobody turns up to a full pitch.</p>
+          <p className="lede">Pick a pitch, a day and an open hour. League matches share the same calendar, so nobody turns up to a full pitch.</p>
         </header>
         <div className="book-grid">
           <div className="where" ref={where}>
