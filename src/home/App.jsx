@@ -63,7 +63,7 @@ export default function App() {
   const shell = useRef(null);
 
   // Things that stay put while the page scrolls (the Book tab's pinned search and booking sheet)
-  // stop just below the prototype bar and this header, and the front tab sizes itself to the room
+  // stop just below this header (and the optional prototype bar), and the front tab sizes itself to the room
   // left between the header and the foot, so both need the header's and the foot's heights.
   useEffect(() => {
     const el = shell.current;

@@ -7,7 +7,7 @@ import Num from '../shared/Num.jsx';
 import Pitch from '../shared/Pitch.jsx';
 import { createMatch, useMatch } from '../shared/match.js';
 import { rng, still, useInterval } from '../shared/util.js';
-import { TEAMS, SF_PAIRS, newSeason, playNext, table, winner } from './league.js';
+import { TEAMS, SF_PAIRS, newSeason, playNext, table, winner } from '../shared/league.js';
 
 /* ---------- sample live data ---------- */
 export const START_GAMES = [

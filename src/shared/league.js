@@ -1,4 +1,4 @@
-import { rng } from '../shared/util.js';
+import { rng } from './util.js';
 
 // Sample league. Names, fixtures and results are examples.
 export const TEAMS = ['Várzea Unidos', 'Leões do Capibaribe', 'Estrela do Morro', 'Santo Amaro FC', 'Beira Rio', 'Unidas da Torre'];

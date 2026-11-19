@@ -1,8 +1,3 @@
-@font-face { font-family: "Bahianita"; src: url("../assets/fonts/Bahianita-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Red Hat Text"; src: url("../assets/fonts/RedHatText-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Red Hat Text"; src: url("../assets/fonts/RedHatText-Italic.ttf") format("truetype"); font-weight: 400; font-style: italic; font-display: swap; }
-@font-face { font-family: "Red Hat Text"; src: url("../assets/fonts/RedHatText-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
-
 /*
   One look for every tab, taken from the logo: off-white paper, charcoal lines, flat
   fields of the brand colours, and corners cut a little unevenly by hand. No shadows
@@ -40,7 +35,7 @@ h1, h2, h3, .display { font-family: var(--display); font-weight: 400; letter-spa
 :focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-.shell { min-height: calc(100vh - 41px); display: flex; flex-direction: column; }
+.shell { min-height: calc(100vh - var(--prototype-bar-height, 0px)); display: flex; flex-direction: column; }
 main { flex: 1; }
 .wrap { width: 100%; max-width: calc(var(--max) + 2 * var(--pad)); margin-inline: auto; padding-inline: var(--pad); }
 .h2 { font-size: clamp(3.5rem, 8.5vw, 7.5rem); line-height: .88; }
@@ -74,7 +69,7 @@ main { flex: 1; }
 .btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
 
 /* ───────── Bar ───────── */
-.bar { position: sticky; top: 41px; z-index: 50; background: var(--paper); border-bottom: var(--line) solid var(--ink); }
+.bar { position: sticky; top: var(--prototype-bar-height, 0px); z-index: 50; background: var(--paper); border-bottom: var(--line) solid var(--ink); }
 .bar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; padding-block: 12px 8px; }
 .logo { display: block; flex: none; width: clamp(100px, 10vw, 132px); color: var(--ink); }
 .logo svg { width: 100%; height: auto; }
@@ -171,7 +166,7 @@ main { flex: 1; }
   and project number. The list is part of the page, not a box of its own: it scrolls with the page,
   and an open country's band stays just under the header while its pitches go by.
 */
-.book { --stick: calc(41px + var(--bar-h, 96px)); }
+.book { --stick: calc(var(--prototype-bar-height, 0px) + var(--bar-h, 96px)); }
 .results { display: grid; gap: 8px; }
 .group { min-width: 0; }
 .group-head {
@@ -357,7 +352,7 @@ h1, h2, h3, .display, .tabs a, .more, .sides, .day strong, td:first-child, .cham
     bottom of the hero, and any height to spare goes above the headline and below the totals
     in equal parts rather than opening a gap between the hero and the numbers.
   */
-  .home { display: flex; flex-direction: column; justify-content: center; min-height: calc(100svh - 41px - var(--bar-h, 96px) - var(--foot-h, 70px)); }
+  .home { display: flex; flex-direction: column; justify-content: center; min-height: calc(100svh - var(--prototype-bar-height, 0px) - var(--bar-h, 96px) - var(--foot-h, 70px)); }
   .home .hero { flex: none; min-height: 0; }
   .home .hero-copy { align-self: end; padding-block: clamp(12px, 2.4vh, 64px) clamp(12px, 1.8vh, 22px); }
   .home .hero h1 { font-size: clamp(3rem, min(8.4vw, 9vh), 7rem); }
@@ -375,7 +370,7 @@ h1, h2, h3, .display, .tabs a, .more, .sides, .day strong, td:first-child, .cham
     it what's next and the knockout. Rows, gaps and type follow the window's height, and any height
     to spare goes above and below in equal parts.
   */
-  .leagues.panel { display: flex; flex-direction: column; justify-content: center; min-height: calc(100svh - 41px - var(--bar-h, 96px) - var(--foot-h, 70px)); padding-block: clamp(12px, 2.4vh, 40px); }
+  .leagues.panel { display: flex; flex-direction: column; justify-content: center; min-height: calc(100svh - var(--prototype-bar-height, 0px) - var(--bar-h, 96px) - var(--foot-h, 70px)); padding-block: clamp(12px, 2.4vh, 40px); }
   .leagues .head { margin-bottom: clamp(10px, 1.8vh, 24px); }
   .leagues .head .h2 { font-size: clamp(2.75rem, min(6vw, 8vh), 6rem); }
   .leagues .board h3 { font-size: clamp(1.75rem, 3.8vh, 2.5rem); }
@@ -442,7 +437,7 @@ h1, h2, h3, .display, .tabs a, .more, .sides, .day strong, td:first-child, .cham
     The front tab is exactly one screen on a phone. The headline, its text and buttons and the
     numbers keep their size; the pitch takes whatever height is left between them.
   */
-  .home { display: flex; flex-direction: column; height: calc(100svh - 41px - var(--bar-h, 80px)); }
+  .home { display: flex; flex-direction: column; height: calc(100svh - var(--prototype-bar-height, 0px) - var(--bar-h, 80px)); }
   .home .hero { flex: 1; min-height: 0; display: flex; flex-direction: column; padding-inline: var(--pad); }
   .home .hero-copy { align-self: stretch; padding: clamp(14px, 2.6svh, 28px) 0 0; }
   .home .hero h1 { font-size: min(15vw, 7.4svh); }

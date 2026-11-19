@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import useFlip from '../shared/useFlip.js';
 import { still, useInterval } from '../shared/util.js';
 import Flag from '../shared/Flag.jsx';
-import { TEAMS, SF_PAIRS, newSeason, playNext, table, winner } from '../pitch/league.js';
+import { TEAMS, SF_PAIRS, newSeason, playNext, table, winner } from '../shared/league.js';
 import { GAMES } from './data.js';
 
 function Tie({ rows, label }) {
