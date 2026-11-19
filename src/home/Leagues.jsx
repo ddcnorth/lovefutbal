@@ -96,6 +96,12 @@ export default function Leagues() {
               </table>
             </div>
             <p className="cut-note">Top four go to the knockout</p>
+            {recent.length > 0 && (
+              <>
+                <h4 className="sub">Latest results</h4>
+                <ul className="recent">{recent.map((x) => <li key={x}>{x}</li>)}</ul>
+              </>
+            )}
           </div>
           <div className="aside">
             <div className="block">
@@ -105,7 +111,6 @@ export default function Leagues() {
                 <button className="btn" aria-pressed={!playing} onClick={() => setPlaying(!playing)}>{playing ? 'Pause' : 'Resume'}</button>
                 {!playing && <button className="btn btn-line" onClick={() => setL(playNext(L))}>{q ? 'Record the next result' : 'Start a new season'}</button>}
               </div>
-              {recent.length > 0 && <ul className="results">{recent.map((x) => <li key={x}>{x}</li>)}</ul>}
             </div>
             <div className="swatch">
               <h3>Knockout</h3>
