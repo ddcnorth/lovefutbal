@@ -143,26 +143,40 @@ main { flex: 1; }
 .textlink { padding: 0; border: 0; background: none; font-size: .9375rem; text-decoration: underline; text-underline-offset: .2em; }
 .textlink:hover { text-decoration-thickness: 2.5px; }
 .status { font-size: .9375rem; color: var(--soft); }
+/* Continents: a row of buttons above the countries. The one showing is filled in ink. */
+.continents { display: flex; flex-wrap: wrap; gap: 8px; }
+.continents button {
+  display: inline-flex; align-items: baseline; gap: .4em; min-height: 44px; padding: .5rem .85rem .4rem;
+  background: none; border: var(--line) solid var(--ink); border-radius: var(--rough-sm);
+  font: 400 1.5rem/1 var(--display); text-transform: uppercase;
+}
+.continents small { font: 700 .75rem/1 var(--text); color: var(--soft); font-variant-numeric: tabular-nums; }
+.continents button:hover { background: color-mix(in srgb, var(--mint) 40%, transparent); }
+.continents button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.continents button[aria-pressed="true"] small { color: inherit; opacity: .75; }
+
 /*
-  The list takes its look from the love.fútbol Atlas side panel: each country under a band of colour
-  (green and terracotta by turns) with its name in capitals, then plain rows of photo, name, place
-  and project number. It is part of the page, not a box of its own: it scrolls with the page, and
-  each country's band stays just under the header while that country's pitches go by.
+  Countries take their look from the love.fútbol Atlas side panel: each is a band of colour (green
+  and terracotta by turns) with its name in capitals, and opens to plain rows of photo, name, place
+  and project number. The list is part of the page, not a box of its own: it scrolls with the page,
+  and an open country's band stays just under the header while its pitches go by.
 */
 .book { --stick: calc(41px + var(--bar-h, 96px)); }
-.results { display: grid; gap: clamp(18px, 2vw, 28px); }
+.results { display: grid; gap: 8px; }
 .group { min-width: 0; }
 .group-head {
   position: sticky; top: var(--stick); z-index: 2;
-  display: grid; gap: 6px; width: 100%; padding: 14px 18px 12px; text-align: left;
+  display: flex; align-items: center; gap: 14px; width: 100%; padding: 12px 16px 10px; text-align: left;
   border: 0; border-radius: var(--rough-sm); background: var(--mint); color: var(--ink);
 }
 .tone-1 .group-head { background: var(--clay); color: var(--white); }
-.group-head .display { font-size: 3.25rem; line-height: .82; text-transform: uppercase; }
-.group-head small { display: flex; align-items: center; gap: .5em; font-size: .6875rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); }
-.group-head .go { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; }
-.group-head:hover .go { transform: translateX(3px); }
+.group-head .display { flex: 1; min-width: 0; font-size: 2.5rem; line-height: .85; text-transform: uppercase; }
+.group-head small { flex: none; font-size: .6875rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); }
+.group-head .chev { flex: none; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; transition: rotate .2s ease; }
+.group-head:hover .chev { translate: 0 2px; }
+.group-head[aria-expanded="true"] .chev { rotate: 180deg; }
 .group-head:focus-visible { outline-offset: -4px; }
+.group-rows { padding: 6px 0 14px; }
 .prow { position: relative; display: block; }
 .prow input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
 .prow-body { display: flex; align-items: center; gap: 12px; padding: 9px 10px; border: var(--line) solid transparent; border-bottom-color: var(--rule); border-radius: var(--rough-sm); }
@@ -360,9 +374,11 @@ h1, h2, h3, .display, .tabs a, .more, .scoreline, .sides, .day strong, td:first-
   .fig b { font-size: 88px; min-width: 1.5em; }
   .fig span { margin-top: 0; }
   .day strong { font-size: 1.75rem; }
-  /* The country band stays pinned while you scroll, so on a phone it takes less of the screen. */
-  .group-head { padding: 10px 14px 9px; gap: 4px; }
-  .group-head .display { font-size: 2.25rem; }
+  /* An open country's band stays pinned while you scroll, so on a phone it takes less of the screen. */
+  .group-head { padding: 10px 12px 8px; gap: 10px; }
+  .group-head .display { font-size: 2rem; }
+  .continents { gap: 6px; }
+  .continents button { min-height: 40px; padding: .45rem .7rem .35rem; font-size: 1.25rem; }
   .sites.cols .site span { flex-direction: column; gap: 0; height: 100%; }
   th, td { padding-inline: .2rem; }
   td:first-child { font-size: 1.4rem; }

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { still } from '../shared/util.js';
 import { GAMES } from './data.js';
-import { COUNTRIES, PITCHES, fold, whereIs } from './pitches.js';
+import { CONTINENTS, COUNTRIES, PITCHES, fold, whereIs } from './pitches.js';
 
 const LEAGUE = new Map(GAMES.filter((g) => g.league).map((g) => [g.id, g.league]));
 const howMany = (n) => `${n} ${n === 1 ? 'pitch' : 'pitches'}`;
@@ -24,11 +24,16 @@ function Thumb({ src }) {
   );
 }
 
-function Arrow() {
+function Chevron() {
   return (
-    <svg className="go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+    <svg className="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
   );
 }
+
+// Every word typed has to appear somewhere in the pitch's name, place, country or continent.
+const termsOf = (q) => fold(q).split(/\s+/).filter(Boolean);
+const inContinent = (c) => (c == null ? PITCHES : PITCHES.filter((p) => p.continent === c));
+const matching = (list, terms) => (terms.length ? list.filter((p) => terms.every((t) => p.hay.includes(t))) : list);
 
 const fmtDay = new Intl.DateTimeFormat('en-GB', { weekday: 'short' });
 const fmtLong = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -37,10 +42,11 @@ const HOURS = Array.from({ length: 14 }, (_, i) => 8 + i);
 const NOTE = { open: 'Open', taken: 'Taken', league: 'League match', mine: 'Yours' };
 
 /**
- * Book tab. On the left you find a pitch: a list of every pitch with its photo and place,
- * and a search box. The list is part of the page and scrolls with it; each country's heading stays
- * in view while its pitches go by, and narrows the list to that country. On the right, that pitch's
- * days and hours, which stay beside the list as you scroll.
+ * Book tab. On the left you find a pitch: a search box, a row of continents, and under them a card
+ * for each country that opens to show its pitches with photo and place. Picking a continent leaves
+ * only its countries. The list is part of the page and scrolls with it; an open country's heading
+ * stays in view while its pitches go by. On the right, the chosen pitch's days and hours, which stay
+ * beside the list as you scroll.
  */
 export default function Book() {
   const days = useMemo(() => {
@@ -48,7 +54,8 @@ export default function Book() {
     today.setHours(0, 0, 0, 0);
     return Array.from({ length: 7 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i); return d; });
   }, []);
-  const [country, setCountry] = useState(null);
+  const [continent, setContinent] = useState(null);
+  const [open, setOpen] = useState(() => new Set());
   const [query, setQuery] = useState('');
   const [pitch, setPitch] = useState(null);
   const [day, setDay] = useState(0);
@@ -64,29 +71,49 @@ export default function Book() {
     if (sheet.current.getBoundingClientRect().top > window.innerHeight - 160) sheet.current.scrollIntoView({ behavior: still ? 'auto' : 'smooth' });
   }, [pitch]);
 
-  // Every word typed has to appear somewhere in the pitch's name, place or country.
-  const terms = fold(query).split(/\s+/).filter(Boolean);
-  const scoped = country == null ? PITCHES : PITCHES.filter((p) => p.code === country);
-  const countryName = COUNTRIES.find((c) => c.code === country)?.name;
-  const found = terms.length ? scoped.filter((p) => terms.every((t) => p.hay.includes(t))) : scoped;
-  // The list is grouped under country headings, biggest country first.
+  const terms = termsOf(query);
+  const scoped = inContinent(continent);
+  const found = matching(scoped, terms);
+  // The list is grouped into country cards, biggest country first.
   const groups = COUNTRIES.map((c) => ({ ...c, rows: found.filter((p) => p.code === c.code) })).filter((g) => g.rows.length);
 
   const pickPitch = (id) => { setPitch(id); setHour(null); setDone(null); };
-  const pickCountry = (name) => {
-    setCountry(name);
-    setQuery('');
-    if (name == null) return;
-    const theirs = PITCHES.filter((p) => p.code === name);
-    // A country with one pitch leaves nothing more to choose.
-    if (theirs.length === 1) pickPitch(theirs[0].id);
+  // While searching, every country with a match opens so the matches are in view. Clearing the
+  // search leaves only the chosen pitch's country open.
+  const opened = (c, q) => {
+    const t = termsOf(q);
+    if (t.length) return new Set(matching(inContinent(c), t).map((p) => p.code));
+    return new Set(place ? [place.code] : []);
   };
-  const allCountries = () => { setCountry(null); setQuery(''); };
+  const search = (q) => { setQuery(q); setOpen(opened(continent, q)); };
+  // Switching continent keeps the cards as you left them. A continent with one country opens it.
+  const pickContinent = (c) => {
+    setContinent(c);
+    const next = termsOf(query).length ? opened(c, query) : new Set(open);
+    const theirs = COUNTRIES.filter((x) => x.continent === c);
+    if (theirs.length === 1) next.add(theirs[0].code);
+    setOpen(next);
+  };
+  const allPitches = () => { setContinent(null); setQuery(''); setOpen(opened(null, '')); };
+  const toggle = (code) => {
+    const next = new Set(open);
+    if (next.has(code)) next.delete(code);
+    else {
+      next.add(code);
+      // A country with one pitch leaves nothing more to choose.
+      const theirs = PITCHES.filter((p) => p.code === code);
+      if (theirs.length === 1) pickPitch(theirs[0].id);
+    }
+    setOpen(next);
+  };
 
-  let status = country ? `${howMany(scoped.length)} in ${countryName}` : `${howMany(scoped.length)} in ${COUNTRIES.length} countries`;
+  const spread = continent ? COUNTRIES.filter((c) => c.continent === continent).length : COUNTRIES.length;
+  let status = continent
+    ? `${howMany(scoped.length)} in ${continent}${spread > 1 ? `, across ${spread} countries` : ''}`
+    : `${howMany(scoped.length)} in ${spread} countries`;
   if (terms.length) {
-    if (!found.length) status = `No pitch ${country ? `in ${countryName} ` : ''}matches “${query.trim()}”.`;
-    else status = country ? `${found.length} of ${howMany(scoped.length)} in ${countryName}` : `${howMany(found.length)} found`;
+    if (!found.length) status = `No pitch ${continent ? `in ${continent} ` : ''}matches “${query.trim()}”.`;
+    else status = continent ? `${found.length} of ${howMany(scoped.length)} in ${continent}` : `${howMany(found.length)} found`;
   }
 
   const key = (h) => [pitch, day, h].join('-');
@@ -117,35 +144,52 @@ export default function Book() {
         <div className="book-grid">
           <div className="where">
             <input
-              className="filter" type="search" value={query} onChange={(e) => setQuery(e.target.value)} autoComplete="off" spellCheck="false"
+              className="filter" type="search" value={query} onChange={(e) => search(e.target.value)} autoComplete="off" spellCheck="false"
               aria-label="Search pitches" placeholder="Search a pitch, city or country"
             />
+            <div className="continents" role="group" aria-label="Continent">
+              <button type="button" aria-pressed={continent == null} onClick={() => pickContinent(null)}>
+                <span>All</span><small>{PITCHES.length}</small>
+              </button>
+              {CONTINENTS.map((c) => (
+                <button key={c.name} type="button" aria-pressed={continent === c.name} onClick={() => pickContinent(continent === c.name ? null : c.name)}>
+                  <span>{c.name}</span><small>{c.count}</small>
+                </button>
+              ))}
+            </div>
             <p className="status" role="status">{status}</p>
             {found.length > 0 ? (
               <div className="results">
-                {groups.map((g, i) => (
-                  <div className={`group tone-${i % 2}`} role="group" aria-label={g.name} key={g.code}>
-                    <button type="button" className="group-head" aria-pressed={country === g.code} onClick={() => pickCountry(country === g.code ? null : g.code)}>
-                      <span className="display">{g.name}</span>
-                      <small>{g.rows.length} {g.rows.length === 1 ? 'space' : 'spaces'} · {country === g.code ? 'show all' : 'show only'} <Arrow /></small>
-                    </button>
-                    {g.rows.map((p) => (
-                      <label className="prow" key={p.id}>
-                        <input type="radio" name="pitch" value={p.id} checked={pitch === p.id} onChange={() => pickPitch(p.id)} />
-                        <span className="prow-body">
-                          <Thumb src={p.img} />
-                          <span className="prow-text"><b>{p.name}</b><small>{note(p)}</small></span>
-                          {p.num > 0 && <span className="num">#{p.num}</span>}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                ))}
+                {groups.map((g, i) => {
+                  const isOpen = open.has(g.code);
+                  const chosenHere = place?.code === g.code;
+                  return (
+                    <div className={`group tone-${i % 2}`} key={g.code}>
+                      <button type="button" className="group-head" id={`c-${g.code}`} aria-expanded={isOpen} aria-controls={`r-${g.code}`} onClick={() => toggle(g.code)}>
+                        <span className="display">{g.name}</span>
+                        <small>{chosenHere && !isOpen ? `${place.name} chosen` : howMany(g.rows.length)}</small>
+                        <Chevron />
+                      </button>
+                      <div className="group-rows" id={`r-${g.code}`} role="group" aria-labelledby={`c-${g.code}`} hidden={!isOpen}>
+                        {g.rows.map((p) => (
+                          <label className="prow" key={p.id}>
+                            <input type="radio" name="pitch" value={p.id} checked={pitch === p.id} onChange={() => pickPitch(p.id)} />
+                            <span className="prow-body">
+                              <Thumb src={p.img} />
+                              <span className="prow-text"><b>{p.name}</b><small>{note(p)}</small></span>
+                              {p.num > 0 && <span className="num">#{p.num}</span>}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <p className="hint">
                 Check the spelling, or{' '}
-                <button type="button" className="textlink" onClick={allCountries}>show every pitch</button>.
+                <button type="button" className="textlink" onClick={allPitches}>show every pitch</button>.
               </p>
             )}
           </div>

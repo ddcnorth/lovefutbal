@@ -164,6 +164,19 @@ const ALSO = {
   US: 'USA US America Estados Unidos United States of America',
 };
 
+/**
+ * The continent each country is listed under. Central America and the Caribbean count as North
+ * America, and Spain as Europe (its one space is in Ceuta, on the African side of the strait).
+ */
+const CONTINENT = {
+  BR: 'South America', AR: 'South America', CO: 'South America',
+  MX: 'North America', US: 'North America', GT: 'North America', BS: 'North America', CA: 'North America', DO: 'North America', PR: 'North America',
+  IN: 'Asia', HK: 'Asia', ID: 'Asia', MY: 'Asia', PH: 'Asia',
+  EG: 'Africa', NG: 'Africa', TZ: 'Africa',
+  ES: 'Europe',
+  AU: 'Oceania',
+};
+
 /** Lower case without accents, so "sao" finds São Remo. */
 export const fold = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
@@ -172,11 +185,19 @@ const flagOf = (code) => String.fromCodePoint(...[...code].map((c) => 0x1f1e6 + 
 const pictureOf = (file) => (file ? `https://www.lovefutbol.org/hs-fs/hubfs/${encodeURIComponent(file)}.png?width=240` : null);
 
 export const PITCHES = Object.entries(LIST)
-  .flatMap(([code, [country, rows]]) => rows.map(([name, place, file, num]) => ({ name, place, country, code, img: pictureOf(file), num })))
-  .map((p, id) => ({ ...p, id, hay: fold(`${p.name} ${p.place} ${p.country} ${ALSO[p.code] ?? ''}`) }));
+  .flatMap(([code, [country, rows]]) => rows.map(([name, place, file, num]) => ({ name, place, country, code, continent: CONTINENT[code], img: pictureOf(file), num })))
+  .map((p, id) => ({ ...p, id, hay: fold(`${p.name} ${p.place} ${p.country} ${ALSO[p.code] ?? ''} ${p.continent}`) }));
 
 // Countries with the most spaces first, as LIST is written.
-export const COUNTRIES = Object.entries(LIST).map(([code, [name, rows]]) => ({ code, name, count: rows.length, flag: flagOf(code) }));
+export const COUNTRIES = Object.entries(LIST).map(([code, [name, rows]]) => ({ code, name, continent: CONTINENT[code], count: rows.length, flag: flagOf(code) }));
+
+// Continents with the most spaces first.
+export const CONTINENTS = [...new Set(COUNTRIES.map((c) => c.continent))]
+  .map((name) => {
+    const theirs = COUNTRIES.filter((c) => c.continent === name);
+    return { name, countries: theirs.length, count: theirs.reduce((n, c) => n + c.count, 0) };
+  })
+  .sort((a, b) => b.count - a.count);
 
 /** "Pina, Recife, Pernambuco, Brazil". */
 export const whereIs = (p) => [p.place, p.country].filter(Boolean).join(', ');
