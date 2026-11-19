@@ -38,7 +38,9 @@ const NOTE = { open: 'Open', taken: 'Taken', league: 'League match', mine: 'Your
 
 /**
  * Book tab. On the left you find a pitch: a list of every pitch with its photo and place,
- * and a search box. A country's heading narrows the list to that country. On the right, that pitch's days and hours.
+ * and a search box. The list is part of the page and scrolls with it; each country's heading stays
+ * in view while its pitches go by, and narrows the list to that country. On the right, that pitch's
+ * days and hours, which stay beside the list as you scroll.
  */
 export default function Book() {
   const days = useMemo(() => {
@@ -122,13 +124,11 @@ export default function Book() {
             {found.length > 0 ? (
               <div className="results">
                 {groups.map((g, i) => (
-                  <fieldset className={`group tone-${i % 2}`} key={g.code}>
-                    <legend>
-                      <button type="button" className="group-head" aria-pressed={country === g.code} onClick={() => pickCountry(country === g.code ? null : g.code)}>
-                        <span className="display">{g.name}</span>
-                        <small>{g.rows.length} {g.rows.length === 1 ? 'space' : 'spaces'} · {country === g.code ? 'show all' : 'show only'} <Arrow /></small>
-                      </button>
-                    </legend>
+                  <div className={`group tone-${i % 2}`} role="group" aria-label={g.name} key={g.code}>
+                    <button type="button" className="group-head" aria-pressed={country === g.code} onClick={() => pickCountry(country === g.code ? null : g.code)}>
+                      <span className="display">{g.name}</span>
+                      <small>{g.rows.length} {g.rows.length === 1 ? 'space' : 'spaces'} · {country === g.code ? 'show all' : 'show only'} <Arrow /></small>
+                    </button>
                     {g.rows.map((p) => (
                       <label className="prow" key={p.id}>
                         <input type="radio" name="pitch" value={p.id} checked={pitch === p.id} onChange={() => pickPitch(p.id)} />
@@ -139,7 +139,7 @@ export default function Book() {
                         </span>
                       </label>
                     ))}
-                  </fieldset>
+                  </div>
                 ))}
               </div>
             ) : (

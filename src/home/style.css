@@ -144,14 +144,19 @@ main { flex: 1; }
 .textlink:hover { text-decoration-thickness: 2.5px; }
 .status { font-size: .9375rem; color: var(--soft); }
 /*
-  The list follows the love.fútbol Atlas side panel: a rounded cream panel, each country under a
-  band of colour (terracotta and green by turns) with its name in capitals, then plain rows of
-  photo, name, place and project number.
+  The list takes its look from the love.fútbol Atlas side panel: each country under a band of colour
+  (green and terracotta by turns) with its name in capitals, then plain rows of photo, name, place
+  and project number. It is part of the page, not a box of its own: it scrolls with the page, and
+  each country's band stays just under the header while that country's pitches go by.
 */
-.results { max-height: min(36rem, 72vh); overflow-y: auto; overscroll-behavior: contain; background: #F6F4EE; border-radius: 18px; box-shadow: 0 10px 30px rgba(29, 29, 27, .16), 0 1px 3px rgba(29, 29, 27, .12); }
-.group { margin: 0; padding: 0 0 10px; border: 0; min-width: 0; }
-.group legend { display: block; width: 100%; padding: 0; margin-bottom: 8px; }
-.group-head { display: grid; gap: 6px; width: 100%; padding: 16px 20px 14px; text-align: left; border: 0; background: var(--mint); color: var(--ink); }
+.book { --stick: calc(41px + var(--bar-h, 96px)); }
+.results { display: grid; gap: clamp(18px, 2vw, 28px); }
+.group { min-width: 0; }
+.group-head {
+  position: sticky; top: var(--stick); z-index: 2;
+  display: grid; gap: 6px; width: 100%; padding: 14px 18px 12px; text-align: left;
+  border: 0; border-radius: var(--rough-sm); background: var(--mint); color: var(--ink);
+}
 .tone-1 .group-head { background: var(--clay); color: var(--white); }
 .group-head .display { font-size: 3.25rem; line-height: .82; text-transform: uppercase; }
 .group-head small { display: flex; align-items: center; gap: .5em; font-size: .6875rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); }
@@ -160,9 +165,10 @@ main { flex: 1; }
 .group-head:focus-visible { outline-offset: -4px; }
 .prow { position: relative; display: block; }
 .prow input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
-.prow-body { display: flex; align-items: center; gap: 12px; margin-inline: 8px; padding: 7px 12px; border-radius: 10px; }
-.prow:hover .prow-body { background: color-mix(in srgb, var(--ink) 6%, transparent); }
-.prow input:checked + .prow-body { background: var(--white); box-shadow: inset 0 0 0 2px var(--ink); }
+.prow-body { display: flex; align-items: center; gap: 12px; padding: 9px 10px; border: var(--line) solid transparent; border-bottom-color: var(--rule); border-radius: var(--rough-sm); }
+.prow:last-child .prow-body { border-bottom-color: transparent; }
+.prow:hover .prow-body { border-bottom-color: var(--ink); }
+.prow input:checked + .prow-body { border-color: var(--ink); background: var(--white); }
 .prow input:focus-visible + .prow-body { outline: 3px solid var(--sky); outline-offset: 1px; }
 .thumb { flex: none; display: grid; place-items: center; width: 62px; height: 44px; overflow: hidden; background: color-mix(in srgb, var(--mint) 30%, var(--white)); border-radius: 7px; }
 .thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -190,7 +196,9 @@ main { flex: 1; }
 
 /* When: the chosen pitch's sheet of days and hours. Until a pitch is chosen it is an empty outline. */
 .sheet { background: var(--white); border: var(--line) solid var(--ink); border-radius: var(--rough); padding: clamp(16px, 2.4vw, 28px); min-width: 0; }
-.sheet { scroll-margin-top: 150px; }
+.sheet { scroll-margin-top: calc(var(--stick) + 16px); }
+/* Side by side, the sheet stays beside the list while the list scrolls by. */
+@media (min-width: 901px) { .sheet { position: sticky; top: calc(var(--stick) + 16px); } }
 .sheet h3 { font-size: 2.5rem; line-height: .95; }
 .sheet-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .25rem 1.5rem; margin-bottom: 1rem; padding-bottom: .9rem; border-bottom: var(--line) solid var(--ink); }
 .sheet-head p { font-size: .875rem; color: var(--soft); }
@@ -228,11 +236,10 @@ main { flex: 1; }
 .pick p { max-width: 30em; }
 
 /* ───────── Leagues ───────── */
-/* A short heading here: the table is the point of this tab, so the title and its text stay out of its way. */
+/* A compact heading here: the title and its text sit together, close above the table. */
 .leagues.panel { padding-top: clamp(20px, 3vw, 40px); }
 .leagues .head { grid-template-columns: minmax(0, 1fr); gap: 8px; margin-bottom: clamp(18px, 2.4vw, 28px); }
-.leagues .head .h2 { font-size: clamp(2.75rem, 5vw, 4.5rem); }
-.leagues .head .lede { font-size: 1rem; line-height: 1.45; max-width: 46em; color: var(--soft); }
+.leagues .head .lede { max-width: 46em; }
 .board { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(28px, 4vw, 64px); align-items: start; }
 .board h3 { font-size: 2.5rem; line-height: .95; }
 .block { border-top: var(--line) solid var(--ink); padding-top: 14px; min-width: 0; }
@@ -353,6 +360,9 @@ h1, h2, h3, .display, .tabs a, .more, .scoreline, .sides, .day strong, td:first-
   .fig b { font-size: 88px; min-width: 1.5em; }
   .fig span { margin-top: 0; }
   .day strong { font-size: 1.75rem; }
+  /* The country band stays pinned while you scroll, so on a phone it takes less of the screen. */
+  .group-head { padding: 10px 14px 9px; gap: 4px; }
+  .group-head .display { font-size: 2.25rem; }
   .sites.cols .site span { flex-direction: column; gap: 0; height: 100%; }
   th, td { padding-inline: .2rem; }
   td:first-child { font-size: 1.4rem; }

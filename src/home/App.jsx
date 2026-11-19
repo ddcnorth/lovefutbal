@@ -1,5 +1,5 @@
 import './style.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Logo from '../shared/Logo.jsx';
 import Flag from '../shared/Flag.jsx';
 import { createMatch } from '../shared/match.js';
@@ -59,6 +59,17 @@ export default function App() {
   const [tab, setTab] = useState(fromHash);
   const [matches] = useState(() => GAMES.map((g, i) => createMatch({ n: g.n, seed: i ? i * 13 + 5 : 7, score: g.s })));
   const world = useWorld(matches);
+  const shell = useRef(null);
+
+  // Things that stay put while the page scrolls (the Book tab's country headings and booking sheet)
+  // stop just below the prototype bar and this header, so they need the header's height.
+  useEffect(() => {
+    const el = shell.current;
+    const bar = el.querySelector('.bar');
+    const ro = new ResizeObserver(() => el.style.setProperty('--bar-h', `${bar.getBoundingClientRect().height}px`));
+    ro.observe(bar, { box: 'border-box' });
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     const onHash = () => setTab(fromHash());
@@ -77,7 +88,7 @@ export default function App() {
   };
 
   return (
-    <div className="shell">
+    <div className="shell" ref={shell}>
       <header className="bar">
         <div className="wrap">
           <a className="logo" href="#home" onClick={go('home')} aria-label="love.fútbol home"><Logo /></a>
