@@ -10,7 +10,8 @@ export default function Home({ match, game, world, go }) {
           <h1>
             <a href="#book" onClick={go('book')}>Book a pitch.</a>
             <a href="#leagues" onClick={go('leagues')}>Join a league.</a>
-            <a href="#live" onClick={go('live')}>See who's playing.</a>
+            {/* The Live tab is hidden for now, so this line no longer links to it. */}
+            <span>See who's playing.</span>
           </h1>
           <p className="lede">
             Community pitches in several countries, open to reserve by the hour. Leagues play on the same ground, and every
@@ -32,7 +33,6 @@ export default function Home({ match, game, world, go }) {
           <Figs world={world} />
           <div className="now-foot">
             <Totals world={world} />
-            <a className="more" href="#live" onClick={go('live')}>See every game</a>
           </div>
         </div>
       </section>

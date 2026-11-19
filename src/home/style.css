@@ -108,7 +108,7 @@ main { flex: 1; }
 .hero { display: grid; grid-template-columns: minmax(var(--pad), 1fr) minmax(0, calc(var(--max) * .44)) minmax(0, calc(var(--max) * .56)) minmax(var(--pad), 1fr); min-height: min(62vh, 600px); }
 .hero-copy { grid-column: 2; align-self: center; padding: clamp(32px, 5vw, 64px) clamp(20px, 3.5vw, 48px) clamp(32px, 5vw, 64px) 0; }
 .hero h1 { display: grid; gap: .05em; font-size: clamp(3.75rem, 8.4vw, 7rem); line-height: .82; }
-.hero h1 a { display: block; width: fit-content; white-space: nowrap; }
+.hero h1 a, .hero h1 span { display: block; width: fit-content; white-space: nowrap; }
 .hero .lede { margin-top: clamp(20px, 2.4vw, 32px); max-width: 29em; }
 .cta { display: flex; flex-wrap: wrap; gap: .875rem; margin-top: clamp(20px, 2.4vw, 32px); }
 .stage { grid-column: 3; display: grid; align-content: center; justify-items: end; padding: clamp(28px, 3.6vw, 52px) 0 clamp(20px, 2.6vw, 36px) clamp(20px, 3.6vw, 52px); }
@@ -428,7 +428,7 @@ h1, h2, h3, .display, .tabs a, .more, .sides, .day strong, td:first-child, .cham
   td:nth-child(2) { white-space: normal; }
 }
 @media (max-width: 400px) {
-  .hero h1 a { white-space: normal; }
+  .hero h1 a, .hero h1 span { white-space: normal; }
 }
 /* No hover on touch screens, so the headline links carry a thin line of marker all the time. */
 @media (hover: none) {

@@ -14,10 +14,11 @@ const TABS = [
   { id: 'home', label: 'Home' },
   { id: 'book', label: 'Book a pitch' },
   { id: 'leagues', label: 'Leagues' },
-  { id: 'live', label: 'Live' },
+  // Hidden for now: out of the menu, and #live leads to the front tab. Set hidden to false to bring it back.
+  { id: 'live', label: 'Live', hidden: true },
 ];
 const HOME_TITLE = "love.fútbol | Book a pitch, join a league, see who's playing";
-const ids = TABS.map((t) => t.id);
+const ids = TABS.filter((t) => !t.hidden).map((t) => t.id);
 const fromHash = () => {
   const h = decodeURIComponent(window.location.hash.slice(1));
   return ids.includes(h) ? h : 'home';
@@ -95,7 +96,7 @@ export default function App() {
         <div className="wrap">
           <a className="logo" href="#home" onClick={go('home')} aria-label="love.fútbol home"><Logo /></a>
           <nav className="tabs" aria-label="Sections">
-            {TABS.filter((t) => t.id !== 'home').map((t) => (
+            {TABS.filter((t) => t.id !== 'home' && !t.hidden).map((t) => (
               <a key={t.id} href={`#${t.id}`} aria-current={tab === t.id ? 'page' : undefined} onClick={go(t.id)}>
                 <Flag className="flagmark" /><span>{t.label}</span>
               </a>
