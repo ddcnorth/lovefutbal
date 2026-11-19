@@ -47,14 +47,17 @@ main { flex: 1; }
 .lede { font-size: clamp(1.0625rem, 1.4vw, 1.25rem); max-width: 34em; }
 .flagmark { display: inline-block; width: auto; height: .72em; margin-right: .3em; vertical-align: -.04em; }
 
-/* Links that take you somewhere are set in the display face and get a stroke of mint marker. */
+/*
+  Links that take you somewhere are set in the display face and get a stroke of mint marker. The
+  headline's last line is no longer a link (the Live tab is hidden) but keeps the same marker.
+*/
 .tabs a, .hero h1 a, .more { text-decoration: none; }
-.tabs span, .hero h1 a, .more {
+.tabs span, .hero h1 a, .hero h1 span, .more {
   background: linear-gradient(var(--mint), var(--mint)) no-repeat 0 78% / 0 .3em;
   transition: background-size .35s ease-out;
 }
 .tabs a:hover span, .tabs a:focus-visible span, .tabs a[aria-current] span,
-.hero h1 a:hover, .hero h1 a:focus-visible,
+.hero h1 a:hover, .hero h1 a:focus-visible, .hero h1 span:hover,
 .more:hover, .more:focus-visible { background-size: 100% .3em; }
 
 .btn {
@@ -471,7 +474,7 @@ h1, h2, h3, .display, .tabs a, .more, .sides, .day strong, td:first-child, .cham
 }
 /* No hover on touch screens, so the headline links carry a thin line of marker all the time. */
 @media (hover: none) {
-  .hero h1 a { background-size: 100% .07em; background-position: 0 92%; }
+  .hero h1 a, .hero h1 span { background-size: 100% .07em; background-position: 0 92%; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
