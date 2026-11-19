@@ -134,21 +134,43 @@ main { flex: 1; }
 .head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 16px clamp(24px, 4vw, 64px); align-items: end; margin-bottom: clamp(28px, 4vw, 56px); }
 
 /* ───────── Book ───────── */
-.book-grid { display: grid; grid-template-columns: minmax(260px, 5fr) 8fr; gap: clamp(28px, 5vw, 80px); align-items: start; }
+.book-grid { display: grid; grid-template-columns: minmax(300px, 6fr) 7fr; gap: clamp(28px, 5vw, 80px); align-items: start; }
 /* Where: one search box over every pitch, or a country to browse. A place is shown only where the list gives one. */
-.where { display: grid; gap: 1.5rem; align-content: start; min-width: 0; }
-.field { display: grid; gap: .6rem; font-weight: 700; }
-.field small { margin-left: .5rem; font-size: .875rem; font-weight: 400; color: var(--soft); white-space: nowrap; }
-.field select, .filter { width: 100%; min-height: 52px; padding: 0 1rem; font: 400 1.0625rem/1.2 var(--text); color: var(--ink); background-color: var(--white); border: var(--line) solid var(--ink); border-radius: var(--rough-sm); }
-/* The dropdown keeps the browser's own menu and gets a hand-drawn chevron in place of the default arrow. */
-.field select { appearance: none; padding-right: 2.75rem; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 10'%3E%3Cpath d='M1.5 1.5 8 8l6.5-6.5' fill='none' stroke='%231D1D1B' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 16px 10px; }
+.where { display: grid; gap: 1rem; align-content: start; min-width: 0; }
+.filter { width: 100%; min-height: 52px; padding: 0 1rem; font: 400 1.0625rem/1.2 var(--text); color: var(--ink); background-color: var(--white); border: var(--line) solid var(--ink); border-radius: var(--rough-sm); }
 .filter::placeholder { color: var(--soft); }
-.field select:focus-visible, .filter:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+.filter:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
 .textlink { padding: 0; border: 0; background: none; font-size: .9375rem; text-decoration: underline; text-underline-offset: .2em; }
 .textlink:hover { text-decoration-thickness: 2.5px; }
 .status { font-size: .9375rem; color: var(--soft); }
-/* Long lists scroll inside the column. The padding keeps a row's focus ring from being cut off. */
-.results { display: grid; gap: .5rem; max-height: min(26rem, 60vh); overflow-y: auto; overscroll-behavior: contain; margin: -4px; padding: 4px 8px 4px 4px; }
+/*
+  The list follows the love.fútbol Atlas side panel: a rounded cream panel, each country under a
+  band of colour (terracotta and green by turns) with its name in capitals, then plain rows of
+  photo, name, place and project number.
+*/
+.results { max-height: min(36rem, 72vh); overflow-y: auto; overscroll-behavior: contain; background: #F6F4EE; border-radius: 18px; box-shadow: 0 10px 30px rgba(29, 29, 27, .16), 0 1px 3px rgba(29, 29, 27, .12); }
+.group { margin: 0; padding: 0 0 10px; border: 0; min-width: 0; }
+.group legend { display: block; width: 100%; padding: 0; margin-bottom: 8px; }
+.group-head { display: grid; gap: 6px; width: 100%; padding: 16px 20px 14px; text-align: left; border: 0; background: var(--mint); color: var(--ink); }
+.tone-1 .group-head { background: var(--clay); color: var(--white); }
+.group-head .display { font-size: 3.25rem; line-height: .82; text-transform: uppercase; }
+.group-head small { display: flex; align-items: center; gap: .5em; font-size: .6875rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); }
+.group-head .go { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; }
+.group-head:hover .go { transform: translateX(3px); }
+.group-head:focus-visible { outline-offset: -4px; }
+.prow { position: relative; display: block; }
+.prow input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.prow-body { display: flex; align-items: center; gap: 12px; margin-inline: 8px; padding: 7px 12px; border-radius: 10px; }
+.prow:hover .prow-body { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.prow input:checked + .prow-body { background: var(--white); box-shadow: inset 0 0 0 2px var(--ink); }
+.prow input:focus-visible + .prow-body { outline: 3px solid var(--sky); outline-offset: 1px; }
+.thumb { flex: none; display: grid; place-items: center; width: 62px; height: 44px; overflow: hidden; background: color-mix(in srgb, var(--mint) 30%, var(--white)); border-radius: 7px; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.thumb svg { width: 24px; height: 24px; fill: none; stroke: var(--green); stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.prow-text { flex: 1; min-width: 0; display: grid; gap: 1px; line-height: 1.3; }
+.prow-text b { font-weight: 700; font-size: 1rem; }
+.prow-text small { font-size: .8125rem; color: var(--soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prow .num { flex: none; font: 400 1.375rem/1 var(--display); color: #A8581A; }
 .sites { display: grid; gap: .5rem; margin: 0; padding: 0; border: 0; min-width: 0; }
 .sites.cols { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: .75rem; }
 .sites legend { font-weight: 700; padding: 0; margin-bottom: .6rem; }
@@ -281,7 +303,7 @@ tbody tr.cut td { border-bottom: 3px dashed var(--clay); }
   (0–0 looks like 8–8), so figures in the display face use its slashed zero instead.
   Kept down here because the `font` shorthand above would reset it.
 */
-h1, h2, h3, .display, .tabs a, .more, .scoreline, .sides, .day strong, td:first-child, .champ { font-variant-numeric: slashed-zero; }
+h1, h2, h3, .display, .tabs a, .more, .scoreline, .sides, .day strong, td:first-child, .champ, .prow .num { font-variant-numeric: slashed-zero; }
 .fig b, .count b, .clock, .goals { font-variant-numeric: tabular-nums slashed-zero; }
 
 /* Book: the heading and its text share one left edge with the lists below. */

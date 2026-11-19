@@ -5,8 +5,30 @@ import { COUNTRIES, PITCHES, fold, whereIs } from './pitches.js';
 
 const LEAGUE = new Map(GAMES.filter((g) => g.league).map((g) => [g.id, g.league]));
 const howMany = (n) => `${n} ${n === 1 ? 'pitch' : 'pitches'}`;
-/** The small print beside a pitch: its place (and country, unless the list is already one country), plus the league. */
-const note = (p, oneCountry) => [oneCountry ? p.place : whereIs(p), LEAGUE.has(p.id) && 'league plays here'].filter(Boolean).join(', ');
+/** The small print under a pitch's name: its place, plus the league if one plays there. */
+const note = (p) => [p.place, LEAGUE.has(p.id) && 'league plays here'].filter(Boolean).join(' · ');
+
+/** A pitch's photo, or a small drawing of a pitch where there is none or it fails to load. */
+function Thumb({ src }) {
+  const [broken, setBroken] = useState(false);
+  return (
+    <span className="thumb">
+      {src && !broken ? (
+        <img src={src} alt="" loading="lazy" onError={() => setBroken(true)} />
+      ) : (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="2.5" y="5" width="19" height="14" rx="1" /><path d="M12 5v14M2.5 9H6v6H2.5M21.5 9H18v6h3.5" /><circle cx="12" cy="12" r="2.6" />
+        </svg>
+      )}
+    </span>
+  );
+}
+
+function Arrow() {
+  return (
+    <svg className="go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+  );
+}
 
 const fmtDay = new Intl.DateTimeFormat('en-GB', { weekday: 'short' });
 const fmtLong = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -15,11 +37,8 @@ const HOURS = Array.from({ length: 14 }, (_, i) => 8 + i);
 const NOTE = { open: 'Open', taken: 'Taken', league: 'League match', mine: 'Yours' };
 
 /**
- * Book tab. On the left you find a pitch: a country dropdown narrows the list, and a search box
- * filters it by name, place or country. On the right, that pitch's days and hours.
- *
- * There is no city step on purpose. love.fútbol's own list gives a city for fewer than half
- * of its pitches, so a step everyone must answer would leave most pitches unreachable.
+ * Book tab. On the left you find a pitch: a list of every pitch with its photo and place,
+ * and a search box. A country's heading narrows the list to that country. On the right, that pitch's days and hours.
  */
 export default function Book() {
   const days = useMemo(() => {
@@ -45,26 +64,27 @@ export default function Book() {
 
   // Every word typed has to appear somewhere in the pitch's name, place or country.
   const terms = fold(query).split(/\s+/).filter(Boolean);
-  const scoped = country == null ? PITCHES : PITCHES.filter((p) => p.country === country);
-  const found = (terms.length ? scoped.filter((p) => terms.every((t) => p.hay.includes(t))) : [...scoped])
-    .sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
+  const scoped = country == null ? PITCHES : PITCHES.filter((p) => p.code === country);
+  const countryName = COUNTRIES.find((c) => c.code === country)?.name;
+  const found = terms.length ? scoped.filter((p) => terms.every((t) => p.hay.includes(t))) : scoped;
+  // The list is grouped under country headings, biggest country first.
+  const groups = COUNTRIES.map((c) => ({ ...c, rows: found.filter((p) => p.code === c.code) })).filter((g) => g.rows.length);
 
   const pickPitch = (id) => { setPitch(id); setHour(null); setDone(null); };
   const pickCountry = (name) => {
     setCountry(name);
     setQuery('');
     if (name == null) return;
-    const theirs = PITCHES.filter((p) => p.country === name);
+    const theirs = PITCHES.filter((p) => p.code === name);
     // A country with one pitch leaves nothing more to choose.
     if (theirs.length === 1) pickPitch(theirs[0].id);
-    else if (place && place.country !== name) pickPitch(null);
   };
   const allCountries = () => { setCountry(null); setQuery(''); };
 
-  let status = country ? `${howMany(scoped.length)} in ${country}` : `${howMany(scoped.length)} in every country`;
+  let status = country ? `${howMany(scoped.length)} in ${countryName}` : `${howMany(scoped.length)} in ${COUNTRIES.length} countries`;
   if (terms.length) {
-    if (!found.length) status = `No pitch ${country ? `in ${country} ` : ''}matches “${query.trim()}”.`;
-    else status = country ? `${found.length} of ${howMany(scoped.length)} in ${country}` : `${howMany(found.length)} found`;
+    if (!found.length) status = `No pitch ${country ? `in ${countryName} ` : ''}matches “${query.trim()}”.`;
+    else status = country ? `${found.length} of ${howMany(scoped.length)} in ${countryName}` : `${howMany(found.length)} found`;
   }
 
   const key = (h) => [pitch, day, h].join('-');
@@ -90,45 +110,49 @@ export default function Book() {
       <div className="wrap">
         <header className="head">
           <h2 className="display h2">Reserve an hour on the pitch</h2>
-          <p className="lede">Choose your country, find your pitch, then pick a day. Green hours are open. League matches already have their place on the same calendar, so nobody turns up to a full pitch.</p>
+          <p className="lede">Find your pitch in the list, then pick a day. Green hours are open. League matches already have their place on the same calendar, so nobody turns up to a full pitch.</p>
         </header>
         <div className="book-grid">
           <div className="where">
-            <label className="field">
-              <span>Country <small>{PITCHES.length} pitches in {COUNTRIES.length} countries</small></span>
-              <select value={country ?? ''} onChange={(e) => pickCountry(e.target.value || null)}>
-                <option value="">All countries</option>
-                {COUNTRIES.map((c) => <option key={c.name} value={c.name}>{c.name} ({c.count})</option>)}
-              </select>
-            </label>
-            <fieldset className="sites">
-              <legend>Pitch</legend>
-              <input
-                className="filter" type="search" value={query} onChange={(e) => setQuery(e.target.value)} autoComplete="off" spellCheck="false"
-                aria-label="Search pitches" placeholder={country ? `Search the pitches in ${country}` : 'Search by pitch, place or country'}
-              />
-              <p className="status" role="status">{status}</p>
-              {found.length > 0 ? (
-                <div className="results">
-                  {found.map((p) => (
-                    <label className="site" key={p.id}>
-                      <input type="radio" name="pitch" value={p.id} checked={pitch === p.id} onChange={() => pickPitch(p.id)} />
-                      <span>{p.name}<small>{note(p, country != null)}</small></span>
-                    </label>
-                  ))}
-                </div>
-              ) : (
-                <p className="hint">
-                  Check the spelling, or{' '}
-                  <button type="button" className="textlink" onClick={allCountries}>show every pitch</button>.
-                </p>
-              )}
-            </fieldset>
+            <input
+              className="filter" type="search" value={query} onChange={(e) => setQuery(e.target.value)} autoComplete="off" spellCheck="false"
+              aria-label="Search pitches" placeholder="Search a pitch, city or country"
+            />
+            <p className="status" role="status">{status}</p>
+            {found.length > 0 ? (
+              <div className="results">
+                {groups.map((g, i) => (
+                  <fieldset className={`group tone-${i % 2}`} key={g.code}>
+                    <legend>
+                      <button type="button" className="group-head" aria-pressed={country === g.code} onClick={() => pickCountry(country === g.code ? null : g.code)}>
+                        <span className="display">{g.name}</span>
+                        <small>{g.rows.length} {g.rows.length === 1 ? 'space' : 'spaces'} · {country === g.code ? 'show all' : 'show only'} <Arrow /></small>
+                      </button>
+                    </legend>
+                    {g.rows.map((p) => (
+                      <label className="prow" key={p.id}>
+                        <input type="radio" name="pitch" value={p.id} checked={pitch === p.id} onChange={() => pickPitch(p.id)} />
+                        <span className="prow-body">
+                          <Thumb src={p.img} />
+                          <span className="prow-text"><b>{p.name}</b><small>{note(p)}</small></span>
+                          {p.num > 0 && <span className="num">#{p.num}</span>}
+                        </span>
+                      </label>
+                    ))}
+                  </fieldset>
+                ))}
+              </div>
+            ) : (
+              <p className="hint">
+                Check the spelling, or{' '}
+                <button type="button" className="textlink" onClick={allCountries}>show every pitch</button>.
+              </p>
+            )}
           </div>
           {place == null ? (
             <div className="sheet empty">
               <h3>No pitch chosen yet</h3>
-              <p>Choose a country, then a pitch. Its open hours for the next seven days show up here.</p>
+              <p>Choose a pitch from the list. Its open hours for the next seven days show up here.</p>
             </div>
           ) : (
             <div className="sheet" ref={sheet}>
