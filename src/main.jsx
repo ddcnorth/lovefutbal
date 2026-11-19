@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import Switcher from './shared/Switcher.jsx';
 
 // Each page is its own chunk, loaded when its route is first visited.
+const HomePage = lazy(() => import('./home/App.jsx'));
 const Chooser = lazy(() => import('./chooser/App.jsx'));
 const PitchPage = lazy(() => import('./pitch/App.jsx'));
 const WorldPage = lazy(() => import('./world/App.jsx'));
@@ -22,14 +23,16 @@ function Page({ name, title, children }) {
   }, [name, title]);
   useEffect(() => {
     const id = decodeURIComponent(window.location.hash.slice(1));
-    if (id) document.getElementById(id)?.scrollIntoView({ behavior: 'instant' });
+    if (name === 'home') window.scrollTo({ top: 0, behavior: 'instant' }); // tabs, not sections
+    else if (id) document.getElementById(id)?.scrollIntoView({ behavior: 'instant' });
     else window.scrollTo({ top: 0, behavior: 'instant' }); // start each page at the top
   }, [name]);
   return children;
 }
 
 const ROUTES = [
-  { path: '/', name: 'chooser', title: 'love.fútbol Design Options', Component: Chooser, old: 'index.html' },
+  { path: '/', name: 'home', title: 'love.fútbol | Book a pitch, join a league, see who\'s playing', Component: HomePage, old: 'home.html' },
+  { path: '/options', name: 'chooser', title: 'love.fútbol Design Options', Component: Chooser, old: 'options.html' },
   { path: '/pitch', name: 'pitch', title: 'love.fútbol Front Page', Component: PitchPage, old: 'pitch.html' },
   { path: '/world-clock', name: 'world', title: 'love.fútbol World Clock', Component: WorldPage, old: 'world-clock.html' },
   { path: '/live-board', name: 'board', title: 'love.fútbol Live Board', Component: BoardPage, old: 'live-board.html' },

@@ -10,7 +10,7 @@ import { rng, still, useInterval } from '../shared/util.js';
 import { TEAMS, SF_PAIRS, newSeason, playNext, table, winner } from './league.js';
 
 /* ---------- sample live data ---------- */
-const START_GAMES = [
+export const START_GAMES = [
   { site: 'Campo da Várzea', city: 'Recife, Brazil', a: 'Várzea Unidos', b: 'Leões do Capibaribe', n: 5, c: 10, s: [2, 1], min: 23 },
   { site: 'Cancha La Esperanza', city: 'Mexico City, Mexico', a: 'Barrio Norte', b: 'Las Águilas', n: 7, c: 14, s: [0, 0], min: 8 },
   { site: 'Cancha El Mirador', city: 'Bogotá, Colombia', a: 'Mirador FC', b: 'Los Vecinos', n: 5, c: 9, s: [3, 3], min: 37 },
@@ -36,7 +36,7 @@ function Nav() {
   );
 }
 
-function Hero({ match, game }) {
+export function Hero({ match, game }) {
   return (
     <section className="hero">
       <div className="wrap">
@@ -147,7 +147,7 @@ function timetable(country, siteIdx, date) {
   return rows;
 }
 
-function Booking() {
+export function Booking() {
   const days = useMemo(
     () => [...Array(7)].map((_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d; }),
     [],

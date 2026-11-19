@@ -370,7 +370,7 @@ function Tie({ a, b, res }) {
   );
 }
 
-function League() {
+export function League() {
   const [L, setL] = useState(newSeason);
   const table = sorted(L.teams);
   const flip = useFlip([L.teams], { duration: 650, easing: 'cubic-bezier(.3,1.3,.5,1)', movingClass: 'moved' });

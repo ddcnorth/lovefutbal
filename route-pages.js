@@ -7,7 +7,7 @@ import { dirname, join } from 'node:path';
 const dist = join(import.meta.dirname, 'dist');
 const index = join(dist, 'index.html');
 const copies = [
-  'pitch/index.html', 'world-clock/index.html', 'live-board/index.html', 'site/index.html',
+  'options/index.html', 'options.html', 'pitch/index.html', 'world-clock/index.html', 'live-board/index.html', 'site/index.html',
   'pitch.html', 'world-clock.html', 'live-board.html', 'site.html', '404.html',
 ];
 for (const file of copies) {

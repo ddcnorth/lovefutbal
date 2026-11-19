@@ -26,7 +26,8 @@ export function createMatch({ n = 5, seed = 7, score = [0, 0] } = {}) {
       P.push({ t, i, hx, hy, x: hx, y: 132, on: i < n, vis: false });
     }
   }
-  if (still) P.forEach((p) => p.on && Object.assign(p, { x: p.hx, y: p.hy, vis: true }));
+  // Players stand at their home spots; nothing moves them.
+  P.forEach((p) => p.on && Object.assign(p, { x: p.hx, y: p.hy, vis: true }));
 
   let holder = P[1];
   let bx = 100;
@@ -88,7 +89,7 @@ export function createMatch({ n = 5, seed = 7, score = [0, 0] } = {}) {
     const team = P.filter((p) => p.t === t);
     const on = team.filter((p) => p.on);
     const off = team.filter((p) => !p.on);
-    if (off.length && (on.length < n || r() < 0.5)) off[0].on = true;
+    if (off.length && (on.length < n || r() < 0.5)) Object.assign(off[0], { on: true, vis: true, x: off[0].hx, y: off[0].hy });
     else {
       const p = on[on.length - 1];
       if (p.i) Object.assign(p, { on: false, vis: false, x: p.hx, y: 132 });
@@ -97,19 +98,8 @@ export function createMatch({ n = 5, seed = 7, score = [0, 0] } = {}) {
     return snap.count;
   }
 
-  /** Starts play after a delay. Returns a stop function (safe under StrictMode). */
-  function start(delay = 1300) {
-    if (still) return () => {};
-    let iv;
-    const to = setTimeout(() => {
-      step();
-      iv = setInterval(step, 1050);
-    }, delay);
-    return () => {
-      clearTimeout(to);
-      clearInterval(iv);
-    };
-  }
+  /** Kept so callers don't change: players no longer move, so there is nothing to start. */
+  const start = () => () => {};
 
   publish();
   return {

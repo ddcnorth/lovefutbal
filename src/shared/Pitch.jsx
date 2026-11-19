@@ -3,8 +3,8 @@ import { useMatch } from './match.js';
 
 const put = (x, y) => `translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
 
-/** A hand-drawn pitch seen from above, with the match playing on it. */
-export default function Pitch({ match, delay = 1300, label = 'A game in progress, seen from above' }) {
+/** A hand-drawn pitch seen from above, with the match playing on it. Pass players={false} for the empty pitch and ball. */
+export default function Pitch({ match, delay = 1300, players = true, label = 'A game in progress, seen from above' }) {
   const snap = useMatch(match);
   const id = 'wob' + useId().replace(/[^\w-]/g, '');
   useEffect(() => match.start(delay), [match, delay]);
@@ -26,10 +26,8 @@ export default function Pitch({ match, delay = 1300, label = 'A game in progress
         <path pathLength="1" d="M0 47H-5V73H0" />
         <path pathLength="1" d="M200 47H205V73H200" />
       </g>
-      <path className="pole" d="M200 1V-11" />
-      <path className="flagc" d="M200-11l9 2.6-9 3.4z" />
       <g className="men">
-        {snap.players.map((p, k) => (
+        {players && snap.players.map((p, k) => (
           <circle
             key={k}
             r="3.8"

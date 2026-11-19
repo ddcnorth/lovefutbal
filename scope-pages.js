@@ -8,7 +8,7 @@
  *   - renames @keyframes to <name>-<page> so animations with the same name don't collide.
  * The app sets <body class="page-<page>"> for whichever route is showing.
  */
-const PAGE_FILE = /[\\/]src[\\/](chooser|pitch|world|board|site)[\\/]style\.css$/;
+const PAGE_FILE = /[\\/]src[\\/](chooser|pitch|world|board|site|home)[\\/]style\.css$/;
 
 // Split a selector list on commas that are not inside brackets or parentheses.
 function splitSelectors(list) {
@@ -27,11 +27,12 @@ function splitSelectors(list) {
   return out;
 }
 
-function scopeSelector(sel, scope) {
-  if (sel === ':root' || sel === 'body') return scope;
-  if (sel === 'html') return `html:has(${scope})`;
-  if (sel.startsWith('body')) return scope + sel.slice(4);
-  return `${scope} ${sel}`;
+// A page's rules apply under its body class (own route) or under a .scope-<page> wrapper (embedded in another page).
+function scopeSelector(sel, [bodyScope, boxScope]) {
+  if (sel === ':root' || sel === 'body') return `${bodyScope},${boxScope}`;
+  if (sel === 'html') return `html:has(${bodyScope})`;
+  if (sel.startsWith('body')) return `${bodyScope}${sel.slice(4)},${boxScope}${sel.slice(4)}`;
+  return `${bodyScope} ${sel},${boxScope} ${sel}`;
 }
 
 const scopePages = () => ({
@@ -41,7 +42,7 @@ const scopePages = () => ({
     const m = file.match(PAGE_FILE);
     if (!m) return;
     const page = m[1];
-    const scope = `body.page-${page}`;
+    const scope = [`body.page-${page}`, `.scope-${page}`];
     const names = new Set();
     root.walkAtRules('keyframes', (at) => {
       names.add(at.params);

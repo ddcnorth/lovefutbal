@@ -2,7 +2,8 @@ import { NavLink } from 'react-router';
 import './switcher.css';
 
 const LINKS = [
-  { to: '/', label: 'All options', end: true },
+  { to: '/', label: 'New front page', end: true },
+  { to: '/options', label: 'All options' },
   { to: '/pitch', label: 'The pitch' },
   { to: '/world-clock', label: 'World clock' },
   { to: '/live-board', label: 'Live board' },

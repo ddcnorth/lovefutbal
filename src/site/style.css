@@ -269,3 +269,11 @@ footer ul { display: flex; gap: 1.5rem; list-style: none; margin: 0; padding: 0;
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .001s !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; }
 }
+
+/* Narrow screens: keep the standings inside their card. */
+.panel { min-width: 0; }
+@media (max-width: 520px) {
+  .standings th, .standings td { padding-inline: .2rem; }
+  .standings td:first-child { font-size: 1.4rem; }
+  .standings td:nth-child(2) { white-space: normal; }
+}
