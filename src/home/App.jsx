@@ -61,13 +61,15 @@ export default function App() {
   const world = useWorld(matches);
   const shell = useRef(null);
 
-  // Things that stay put while the page scrolls (the Book tab's country headings and booking sheet)
-  // stop just below the prototype bar and this header, so they need the header's height.
+  // Things that stay put while the page scrolls (the Book tab's pinned search and booking sheet)
+  // stop just below the prototype bar and this header, and the front tab sizes itself to the room
+  // left between the header and the foot, so both need the header's and the foot's heights.
   useEffect(() => {
     const el = shell.current;
-    const bar = el.querySelector('.bar');
-    const ro = new ResizeObserver(() => el.style.setProperty('--bar-h', `${bar.getBoundingClientRect().height}px`));
-    ro.observe(bar, { box: 'border-box' });
+    const parts = { '--bar-h': el.querySelector('.bar'), '--foot-h': el.querySelector('.foot') };
+    const measure = () => Object.entries(parts).forEach(([name, part]) => el.style.setProperty(name, `${part.getBoundingClientRect().height}px`));
+    const ro = new ResizeObserver(measure);
+    Object.values(parts).forEach((part) => ro.observe(part, { box: 'border-box' }));
     return () => ro.disconnect();
   }, []);
 
