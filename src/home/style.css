@@ -75,9 +75,16 @@ main { flex: 1; }
 .bar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; padding-block: 12px 8px; }
 .logo { display: block; flex: none; width: clamp(100px, 10vw, 132px); color: var(--ink); }
 .logo svg { width: 100%; height: auto; }
-.tabs { display: flex; gap: clamp(16px, 3vw, 40px); }
-.tabs a { flex: none; font: 400 clamp(1.75rem, 2.6vw, 2.25rem)/1 var(--display); padding-block: 6px 2px; white-space: nowrap; }
+/*
+  The red corner flag stands beside whichever tab you are on. Every tab carries one, but only the
+  current tab's shows, and it sits in the space before the tab's name rather than pushing it along,
+  so the tabs never move when you switch.
+*/
+.tabs { --flag: .82em; display: flex; gap: max(var(--flag), clamp(16px, 3vw, 40px)); padding-left: var(--flag); font: 400 clamp(1.75rem, 2.6vw, 2.25rem)/1 var(--display); }
+.tabs a { position: relative; flex: none; padding-block: 6px 2px; white-space: nowrap; }
 .tabs span { padding-inline: 1px; }
+.tabs .flagmark { position: absolute; right: 100%; top: 50%; margin: 0 .16em 0 0; translate: 0 -46%; opacity: 0; scale: .6; transform-origin: 10% 95%; transition: opacity .2s ease, scale .25s ease; }
+.tabs a[aria-current] .flagmark { opacity: 1; scale: 1; }
 
 /* ───────── The pitch drawing ───────── */
 /* The drawing leaves more room above the turf than below it; the negative margin evens that out. */
@@ -382,6 +389,9 @@ h1, h2, h3, .display, .tabs a, .more, .sides, .day strong, td:first-child, .cham
   .group-head .display { font-size: 2rem; }
   .continents { gap: 6px; }
   .continents button { min-height: 40px; padding: .45rem .7rem .35rem; font-size: 1.25rem; }
+
+  /* The tabs, with room for the flag, shrink with the screen so the last one is never cut off. */
+  .tabs { font-size: min(1.75rem, 6.4vw); gap: max(var(--flag), 12px); }
 
   /* No foot on a phone, on any tab. */
   .foot { display: none; }

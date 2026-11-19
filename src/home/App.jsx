@@ -97,7 +97,7 @@ export default function App() {
           <nav className="tabs" aria-label="Sections">
             {TABS.filter((t) => t.id !== 'home').map((t) => (
               <a key={t.id} href={`#${t.id}`} aria-current={tab === t.id ? 'page' : undefined} onClick={go(t.id)}>
-                {t.id === 'live' && <Flag className="flagmark" />}<span>{t.label}</span>
+                <Flag className="flagmark" /><span>{t.label}</span>
               </a>
             ))}
           </nav>
