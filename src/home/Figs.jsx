@@ -22,14 +22,3 @@ export function Totals({ world, showing }) {
     </p>
   );
 }
-
-/** Home team, score, away team, each side marked with a dot in its colour. */
-export function Scoreline({ g }) {
-  return (
-    <p className="scoreline">
-      <span className="side a">{g.a}</span>
-      <b>{g.s[0]}–{g.s[1]}</b>
-      <span className="side b">{g.b}</span>
-    </p>
-  );
-}

@@ -94,9 +94,6 @@ main { flex: 1; }
 @keyframes draw { from { stroke-dashoffset: 1.05; } to { stroke-dashoffset: 0; } }
 .ball { fill: var(--white); stroke: var(--ink); stroke-width: 1.1; }
 
-.scoreline { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: .6em; font: 400 1.75rem/.95 var(--display); }
-.scoreline b { font-weight: 400; font-size: 1.9em; line-height: .8; white-space: nowrap; }
-.scoreline .a { text-align: right; }
 .side::before { content: ""; display: inline-block; width: .4em; height: .4em; margin-right: .28em; vertical-align: .14em; border: 1.5px solid var(--ink); border-radius: 50%; background: var(--ink); }
 .side.b::before { background: var(--clay); }
 
@@ -109,10 +106,6 @@ main { flex: 1; }
 .cta { display: flex; flex-wrap: wrap; gap: .875rem; margin-top: clamp(20px, 2.4vw, 32px); }
 .stage { grid-column: 3; display: grid; align-content: center; justify-items: end; padding: clamp(28px, 3.6vw, 52px) 0 clamp(20px, 2.6vw, 36px) clamp(20px, 3.6vw, 52px); }
 .onnow { margin: 0; width: 100%; max-width: 660px; }
-.onnow figcaption { display: grid; gap: clamp(10px, 1.4vw, 18px); margin-top: clamp(10px, 1.4vw, 18px); }
-.at { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 24px; font-size: .9375rem; }
-.at b { font-weight: 700; }
-.onnow .scoreline { font-size: clamp(1.75rem, 2.7vw, 2.5rem); }
 
 .now { border-top: var(--line) solid var(--ink); }
 .now .figs { border-top: 0; }
@@ -143,6 +136,13 @@ main { flex: 1; }
 .textlink { padding: 0; border: 0; background: none; font-size: .9375rem; text-decoration: underline; text-underline-offset: .2em; }
 .textlink:hover { text-decoration-thickness: 2.5px; }
 .status { font-size: .9375rem; color: var(--soft); }
+/*
+  The search box and continents stay pinned under the header while the list scrolls, on a strip
+  of paper so the rows pass out of sight beneath them. An open country's band pins just below.
+*/
+.finder { position: sticky; top: var(--stick); z-index: 3; display: grid; gap: 12px; margin-block: -12px; padding-block: 12px; background: var(--paper); }
+.where { scroll-margin-top: var(--stick); }
+
 /* Continents: a row of buttons above the countries. The one showing is filled in ink. */
 .continents { display: flex; flex-wrap: wrap; gap: 8px; }
 .continents button {
@@ -165,7 +165,7 @@ main { flex: 1; }
 .results { display: grid; gap: 8px; }
 .group { min-width: 0; }
 .group-head {
-  position: sticky; top: var(--stick); z-index: 2;
+  position: sticky; top: calc(var(--stick) + var(--find-h, 0px)); z-index: 2;
   display: flex; align-items: center; gap: 14px; width: 100%; padding: 12px 16px 10px; text-align: left;
   border: 0; border-radius: var(--rough-sm); background: var(--mint); color: var(--ink);
 }
@@ -330,7 +330,7 @@ tbody tr.cut td { border-bottom: 3px dashed var(--clay); }
   (0–0 looks like 8–8), so figures in the display face use its slashed zero instead.
   Kept down here because the `font` shorthand above would reset it.
 */
-h1, h2, h3, .display, .tabs a, .more, .scoreline, .sides, .day strong, td:first-child, .champ, .prow .num { font-variant-numeric: slashed-zero; }
+h1, h2, h3, .display, .tabs a, .more, .sides, .day strong, td:first-child, .champ, .prow .num { font-variant-numeric: slashed-zero; }
 .fig b, .count b, .clock, .goals { font-variant-numeric: tabular-nums slashed-zero; }
 
 /* Book: the heading and its text share one left edge with the lists below. */
@@ -349,8 +349,6 @@ h1, h2, h3, .display, .tabs a, .more, .scoreline, .sides, .day strong, td:first-
   .home .hero .lede, .home .cta { margin-top: clamp(10px, 2vh, 32px); }
   .home .stage { padding-block: clamp(12px, 2.4vh, 52px) clamp(8px, 1.6vh, 36px); }
   .home .onnow { max-width: min(660px, 52vh); }
-  .home .onnow figcaption { gap: clamp(4px, 1vh, 18px); margin-top: clamp(4px, 1vh, 18px); }
-  .home .onnow .scoreline { font-size: clamp(1.5rem, min(2.7vw, 3.6vh), 2.5rem); }
   .home .figs { padding-block: clamp(6px, 1.2vh, 14px) clamp(8px, 1.4vh, 18px); }
   .home .fig b { font-size: clamp(64px, min(15vw, 13.5vh), 220px); }
   .home .fig span { margin-top: clamp(2px, .8vh, 10px); }
@@ -386,7 +384,6 @@ h1, h2, h3, .display, .tabs a, .more, .scoreline, .sides, .day strong, td:first-
 }
 @media (max-width: 400px) {
   .hero h1 a { white-space: normal; }
-  .scoreline { gap: .4em; }
 }
 /* No hover on touch screens, so the headline links carry a thin line of marker all the time. */
 @media (hover: none) {

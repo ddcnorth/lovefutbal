@@ -1,3 +1,10 @@
+/*
+  Always keep room for the scrollbar, on every page. Otherwise it comes and goes with the page's
+  length (the front tab fits one screen, the Book tab scrolls), and the logo and everything else
+  slide sideways by its width each time you switch.
+*/
+html { scrollbar-gutter: stable; }
+
 /* Not page-scoped: the id keeps it above each page's own scoped rules. */
 #lf-switch {
   position: sticky; top: 0; z-index: 1000;

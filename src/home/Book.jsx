@@ -64,6 +64,25 @@ export default function Book() {
   const [done, setDone] = useState(null);
   const place = pitch == null ? null : PITCHES[pitch];
   const sheet = useRef(null);
+  const where = useRef(null);
+  const finder = useRef(null);
+
+  // The search box and continents stay pinned under the header, and an open country's band pins
+  // just below them, so the bands need to know how tall that pinned block is (it wraps on a phone).
+  useEffect(() => {
+    const el = finder.current;
+    const ro = new ResizeObserver(() => where.current.style.setProperty('--find-h', `${el.getBoundingClientRect().height}px`));
+    ro.observe(el, { box: 'border-box' });
+    return () => ro.disconnect();
+  }, []);
+
+  // Searching or picking a continent while scrolled down the list brings the list's start back
+  // up under the pinned search box, so the new results are in view rather than scrolled past.
+  useEffect(() => {
+    if (where.current.getBoundingClientRect().top < finder.current.getBoundingClientRect().top - 1) {
+      where.current.scrollIntoView({ block: 'start' });
+    }
+  }, [continent, query]);
 
   // On a narrow screen the sheet sits below the list, so bring it into view once a pitch is chosen.
   useEffect(() => {
@@ -142,20 +161,22 @@ export default function Book() {
           <p className="lede">Find your pitch in the list, then pick a day. Green hours are open. League matches already have their place on the same calendar, so nobody turns up to a full pitch.</p>
         </header>
         <div className="book-grid">
-          <div className="where">
-            <input
-              className="filter" type="search" value={query} onChange={(e) => search(e.target.value)} autoComplete="off" spellCheck="false"
-              aria-label="Search pitches" placeholder="Search a pitch, city or country"
-            />
-            <div className="continents" role="group" aria-label="Continent">
-              <button type="button" aria-pressed={continent == null} onClick={() => pickContinent(null)}>
-                <span>All</span><small>{PITCHES.length}</small>
-              </button>
-              {CONTINENTS.map((c) => (
-                <button key={c.name} type="button" aria-pressed={continent === c.name} onClick={() => pickContinent(continent === c.name ? null : c.name)}>
-                  <span>{c.name}</span><small>{c.count}</small>
+          <div className="where" ref={where}>
+            <div className="finder" ref={finder}>
+              <input
+                className="filter" type="search" value={query} onChange={(e) => search(e.target.value)} autoComplete="off" spellCheck="false"
+                aria-label="Search pitches" placeholder="Search a pitch, city or country"
+              />
+              <div className="continents" role="group" aria-label="Continent">
+                <button type="button" aria-pressed={continent == null} onClick={() => pickContinent(null)}>
+                  <span>All</span><small>{PITCHES.length}</small>
                 </button>
-              ))}
+                {CONTINENTS.map((c) => (
+                  <button key={c.name} type="button" aria-pressed={continent === c.name} onClick={() => pickContinent(continent === c.name ? null : c.name)}>
+                    <span>{c.name}</span><small>{c.count}</small>
+                  </button>
+                ))}
+              </div>
             </div>
             <p className="status" role="status">{status}</p>
             {found.length > 0 ? (

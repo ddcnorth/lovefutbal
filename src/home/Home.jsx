@@ -1,12 +1,8 @@
 import Pitch from '../shared/Pitch.jsx';
-import Flag from '../shared/Flag.jsx';
-import Num from '../shared/Num.jsx';
-import { useMatch } from '../shared/match.js';
-import Figs, { Scoreline, Totals } from './Figs.jsx';
+import Figs, { Totals } from './Figs.jsx';
 
 /** Front tab: the headline is the way in to each tab, next to a game that is on now. */
 export default function Home({ match, game, world, go }) {
-  const snap = useMatch(match);
   return (
     <div className="home">
       <section className="hero">
@@ -28,13 +24,6 @@ export default function Home({ match, game, world, go }) {
         <div className="stage">
           <figure className="onnow">
             <Pitch match={match} players={false} label={`The pitch at ${game.site}, seen from above`} />
-            <figcaption>
-              <p className="at">
-                <span><Flag className="flagmark" /><b>{game.site}</b>, {game.place || game.country}</span>
-                <span><Num value={snap.count} /> players in this game</span>
-              </p>
-              <Scoreline g={game} />
-            </figcaption>
           </figure>
         </div>
       </section>
